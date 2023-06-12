@@ -20,6 +20,8 @@ function read_records(fasta_path::String)
 end
 
 
+degap(seq::LongDNA{4}) = filter(c -> c != DNA_Gap, seq)
+
 function sequence_subranges(seq_length::Int, L::Int, R::Int)
     seq_range = 1:seq_length
     start_points = seq_range.start:(L-R):(seq_range.stop-L+1)
