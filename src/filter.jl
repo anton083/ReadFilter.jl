@@ -44,7 +44,7 @@ function chunked_filter_fasta(
     read_chunk_size::Integer = 1000,
 )
 
-    ref_seqs = sequence.(LongDNA{4}, read_records(reference_path))
+    ref_seqs = degap.(sequence.(LongDNA{4}, read_records(reference_path)))
     ref_subranges = sequence_subranges.(length.(ref_seqs), subref_length, 100)
     subrefs = reduce(vcat, subseqs.(ref_seqs, ref_subranges))
 
