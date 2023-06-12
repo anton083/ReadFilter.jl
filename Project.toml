@@ -1,7 +1,15 @@
 name = "ReadFilter"
 uuid = "a7d2a850-b6b6-4837-bafa-12f41e410129"
-authors = ["Periareion <periareion05@gmail.com> and contributors"]
+authors = ["Anton Sollman <anton.sollman@outlook.com> and contributors"]
 version = "1.0.0-DEV"
+
+[deps]
+BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
+FASTX = "c2308a5c-f048-11e8-3e8a-31650f418d12"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+ProgressBars = "49802e3a-d2f1-5c88-81d8-b72133a6f568"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
 
 [compat]
 julia = "1"
