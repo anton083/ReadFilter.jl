@@ -132,12 +132,13 @@ function read_kmer_matrix!(bin_matrix::Matrix{UInt16}, reads::Vector{LongDNA{4}}
     fill!(bin_matrix, zero(eltype(bin_matrix)))
     mask = UInt(4^k - 1)
     for (column, seq) in enumerate(reads)
+        println(seq)
         len = length(seq)
         kmer = UInt(0)
         i = 0
         for data_int in seq.data
             for j in 0:4:60
-            i += 1
+                i += 1
                 i > len && break
                 kmer = kmer << 2 & mask + trailing_zeros(data_int >> j & 0b1111)
                 @inbounds bin_matrix[kmer+1,column] = k <= i
