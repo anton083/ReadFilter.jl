@@ -6,8 +6,8 @@ module ReadFilter
     using FASTX
     using LinearAlgebra
     using StatsBase
-    using ProgressBars
     using StructArrays
+    using Term.Progress
 
     include("mutation.jl")
     include("kmers.jl")

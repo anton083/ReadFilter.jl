@@ -49,27 +49,32 @@ function chunked_filter_fasta(
     subrefs = reduce(vcat, subseqs.(ref_seqs, ref_subranges))
 
     reference_bin_matrix = reference_kmer_matrix(subrefs, 7)
-
-    read_bin_matrix = zeros(UInt16, (1000, 4^k))
-
+    
+    read_bin_matrix = zeros(UInt16, (4^k, read_chunk_size))
     read_chunk = StructVector{Read}(undef, read_chunk_size)
 
     reader = FASTAReader(open(dataset_path), copy=false)
     read_count_total = 0
+
+    pbar = ProgressBar()
+    job = addjob!(pbar; description=dataset_path)
+    with(pbar) do
     while !eof(reader)
+        update!(job)
+        sleep(0.001)
         for (i, record) in enumerate(reader)
             read_count_total += 1
             read_chunk.seq[i] = sequence(LongDNA{4}, record)
             read_chunk.len[i] = seqsize(record)
             read_chunk.idx[i] = i
-            i == 100 && break
+            i == read_chunk_size && break
         end
         if read_count_total % read_chunk_size == 0
             read_kmer_matrix!(read_bin_matrix, read_chunk.seq, k)
             reference_bin_matrix * read_bin_matrix
         end
     end
-
+    end
     close(reader)
 end
 
