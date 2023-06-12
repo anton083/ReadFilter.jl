@@ -7,7 +7,6 @@ module ReadFilter
     using LinearAlgebra
     using StatsBase
     using StructArrays
-    using Term.Progress
 
     include("mutation.jl")
     include("kmers.jl")
