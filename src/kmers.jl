@@ -81,7 +81,7 @@ function reference_kmer_matrix(refs::Vector{LongDNA{4}}, k::Integer)
                 i += 1
                 i > len && break
                 kmer = kmer << 2 & mask + trailing_zeros(data_int >> j & 0b1111)
-                @inbounds bin_matrix[row,kmer+1] += k <= i
+                @inbounds bin_matrix[row,kmer+1] = k <= i
             end
         end
     end
@@ -100,7 +100,7 @@ function reference_kmer_matrix!(bin_matrix::Matrix{UInt16}, refs::Vector{LongDNA
                 i += 1
                 i > len && break
                 kmer = kmer << 2 & mask + trailing_zeros(data_int >> j & 0b1111)
-                @inbounds bin_matrix[row,kmer+1] += k <= i
+                @inbounds bin_matrix[row,kmer+1] = k <= i
             end
         end
     end
