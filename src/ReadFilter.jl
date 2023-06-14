@@ -7,21 +7,15 @@ module ReadFilter
     using LinearAlgebra
     using StatsBase
     using StructArrays
+    using CUDA
 
-    include("mutation.jl")
-    include("kmers.jl")
-    include("score.jl")
+    include("utils.jl")
     include("io.jl")
+    include("kmer_count/kmer_count.jl")
+    include("references.jl")
+    include("score.jl")
+    include("mutation.jl")
+    include("score.jl")
     include("filter.jl")
-
-    export
-        kmer_count,
-        kmer_count!,
-        mutate,
-        mutate!,
-        score,
-        estimate_score_threshold,
-        read_records,
-        single_filter_fasta
 
 end

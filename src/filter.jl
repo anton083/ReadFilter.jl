@@ -1,45 +1,5 @@
 
 
-
-function single_filter_fasta(
-    reference_path::String,
-    dataset_path::String;
-    pident::Float64 = 0.7,
-    k::Integer = 7,
-)
-    reference = degap(sequence(LongDNA{4}, first(read_records(reference_path, 1))))
-    score_threshold, reference_kmer_count = estimate_score_threshold(reference, pident, k = k, sample_count = 1000)
-
-    reader = FASTAReader(open(dataset_path), copy=false)
-    
-    marked_records = Set(Int[])
-    
-    record_kmer_count = kmer_count(k)
-    record_index = 0
-    for record in reader
-        record_index += 1
-        if record_index % 10000 == 0 println(record_index) end
-        fill!(record_kmer_count, zero(UInt32))
-        kmer_count!(record_kmer_count, sequence(LongDNA{4}, record), k)
-        record_score = score(reference_kmer_count, record_kmer_count, seqsize(record))
-        record_score > score_threshold && push!(marked_records, record_index)
-    end
-
-    close(reader)
-
-    return length(marked_records), marked_records
-end
-
-struct Read
-    seq::LongDNA{4}
-    len::Int64
-    idx::Int64
-end
-
-function max_in_columns(matrix::Array{Int, 2})
-    return mapslices(maximum, matrix, dims=1)
-end
-
 function chunked_filter_fasta(
     reference_path::String,
     dataset_path::String;
@@ -63,11 +23,11 @@ function chunked_filter_fasta(
     matrix_product = zeros(Int, (length(subrefs), read_chunk_size))
 
     reader = FASTAReader(open(dataset_path), copy=false)
-    read_count_total = 0
+    num_read_total = 0
     hits = 0
     while !eof(reader)
         for (i, record) in enumerate(reader)
-            read_count_total += 1
+            num_read_total += 1
             read_chunk.seq[i] = sequence(LongDNA{4}, record)
             read_chunk.len[i] = seqsize(record)
             read_chunk.idx[i] = i
@@ -77,13 +37,52 @@ function chunked_filter_fasta(
         mul!(matrix_product, reference_bin_matrix, read_bin_matrix)
 
         hits += count(score -> score > score_threshold, (max_in_columns(matrix_product) / mean(read_chunk.len)))
-        #if read_count_total % 10000 == 0 println(read_count_total) end
-        println("$hits/$read_count_total")
-        #=if read_count_total % read_chunk_size == 0
-        end=#
-
+        #if num_read_total % 10000 == 0 println(num_read_total) end
+        println("$hits/$num_read_total")
     end
     close(reader)
 end
 
-export chunked_filter_fasta
+function filter_fasta_gpu(
+    ref_path::String,
+    dataset_path::String,
+    pident::Float64 = 0.9;
+    k::Integer = 6,
+    subref_length::Integer = 1024,
+    read_chunk_size::Integer = 100000,
+    read_length::Integer = 90,
+    num_refs::Union{Integer, Float64} = Inf,
+)
+    refs = get_refs(ref_path::String, num_refs)
+    subrefs = get_subrefs(refs, subref_length, read_length)
+    num_subrefs = length(subrefs)
+
+    subrefs_base_matrix_d = strings_to_byte_matrix(String.(subrefs)) |> CuMatrix{UInt8} |> bytes_to_bases
+    subrefs_kmer_count_bins_d = kmer_count.GPU.row_bins(num_subrefs, k)
+    kmer_count.GPU.kmer_count_rows!(subrefs_kmer_count_bins_d, subrefs_base_matrix_d, k)
+
+    score_threshold, _ = estimate_score_threshold2(subrefs[1], pident, read_length, k = k, num_samples = 1000)
+    
+    reads_kmer_count_bins_d = kmer_count.GPU.column_bins(read_chunk_size, k)
+    reads_byte_matrix_h = byte_matrix(read_chunk_size, read_length)
+    
+    # TODO: ask Kenta to make some stream that streams reads directly to byte matrix
+
+    reader = FASTAReader(open(dataset_path), copy=false)
+    num_read_total = 0
+    hits = 0
+    while !eof(reader)
+        for (i, record) in enumerate(reader)
+            num_read_total += 1
+            str = sequence(String, record)
+            string_to_byte_matrix!(reads_byte_matrix_h, str, i)
+            i == read_chunk_size && break
+        end
+        reads_base_matrix_d = reads_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
+        kmer_count.GPU.kmer_count_columns!(reads_kmer_count_bins_d, reads_base_matrix_d, k)
+        mul!(matrix_product, reference_bin_matrix, read_bin_matrix)
+
+        hits += count(score -> score > score_threshold, (max_in_columns(matrix_product) / mean(read_chunk.len)))
+    end
+    close(reader)
+end

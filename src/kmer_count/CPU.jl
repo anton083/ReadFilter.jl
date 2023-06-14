@@ -1,4 +1,6 @@
 
+module CPU
+
 @inline kmer_count(k::Integer) = zeros(UInt16, 1 << 2k)
 
 function kmer_count(seq::LongDNA{2}, k::Integer)
@@ -145,4 +147,6 @@ function read_kmer_matrix!(bin_matrix::Matrix{UInt16}, reads::Vector{LongDNA{4}}
         end
     end
     bin_matrix
+end
+
 end
