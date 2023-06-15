@@ -10,7 +10,7 @@ function get_subranges(full_length::Int, sublength::Int, overlap::Int)
     end
 
     full_range = 1:full_length
-    start_points = full_range.start:(sublength-overlap):(full_range.stop-L+1)
+    start_points = full_range.start:(sublength-overlap):(full_range.stop-sublength+1)
     subranges = [start:(start+sublength-1) for start in start_points]
 
     if subranges[end].stop < full_length

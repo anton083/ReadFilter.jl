@@ -1,6 +1,6 @@
 
 function read_records(fasta_path::String, num_records::Union{Integer, Float64} = Inf)
-    num_records > 100000 && @warn "We might be loading a shit ton of records into memory"
+    100000 < num_records < Inf && @warn "We might be loading a shit ton of records into memory"
     records = FASTARecord[]
     FASTAReader(open(fasta_path), copy=true) do reader
         i = 0
