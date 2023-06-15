@@ -82,7 +82,7 @@ function kmer_count_columns!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}
     threads = 256
     blocks = ceil(Int, num_sequences / threads)
 
-    @cuda threads=threads blocks=blocks kernel(sequences, bins, k, mask, num_sequences)
+    @cuda threads=threads blocks=blocks kernel(sequences, bins, k, mask, num_sequences, seq_len)
 
     bins
 end
