@@ -47,6 +47,7 @@ function filter_fasta_gpu(
     end
     close(reader)
 
-    histogram(all_max_scores, bins=50)
-    savefig("plot$(time()).png")
+    all_max_scores
+    #histogram(all_max_scores, bins=50)
+    #savefig("plot$(time()).png")
 end
