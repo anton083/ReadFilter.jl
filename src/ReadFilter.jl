@@ -6,7 +6,6 @@ module ReadFilter
     using FASTX
     using LinearAlgebra
     using StatsBase
-    using StructArrays
     using CUDA
     using Plots
 
