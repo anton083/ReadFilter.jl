@@ -19,7 +19,7 @@ byte_matrix(num_seqs::Integer, seq_length::Integer) = zeros(UInt8, (num_seqs, se
 """
 Does the bare minimum that needs to be done to the sequences before moving them to GPU.
 """
-function strings_to_byte_matrix(seqs::Vector{String})
+function strings_to_byte_matrix(strings::Vector{String})
     lengths = lastindex.(strings)
     @assert length(Set(lengths)) == 1 "Strings have different lengths"
     
