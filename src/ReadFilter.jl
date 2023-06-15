@@ -13,9 +13,10 @@ module ReadFilter
     include("io.jl")
     include("kmer_count/kmer_count.jl")
     include("references.jl")
-    include("score.jl")
-    include("mutation.jl")
-    include("score.jl")
+    #include("score.jl")
+    #include("mutation.jl")
     include("filter.jl")
+
+    export filter_fasta_gpu
 
 end
