@@ -8,6 +8,7 @@ module ReadFilter
     using StatsBase
     using StructArrays
     using CUDA
+    using Plots
 
     include("utils.jl")
     include("io.jl")
