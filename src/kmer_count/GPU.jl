@@ -1,6 +1,8 @@
 
 module GPU
 
+using CUDA
+
 # TODO: spaced_kmer_count (11011011 and 1001001001001001 instead of 111111)
 
 export
