@@ -23,11 +23,11 @@ function chunked_filter_fasta(
     matrix_product = zeros(Int, (length(subrefs), read_chunk_size))
 
     reader = FASTAReader(open(dataset_path), copy=false)
-    num_read_total = 0
+    num_reads_total = 0
     hits = 0
     while !eof(reader)
         for (i, record) in enumerate(reader)
-            num_read_total += 1
+            num_reads_total += 1
             read_chunk.seq[i] = sequence(LongDNA{4}, record)
             read_chunk.len[i] = seqsize(record)
             read_chunk.idx[i] = i
@@ -37,8 +37,8 @@ function chunked_filter_fasta(
         mul!(matrix_product, reference_bin_matrix, read_bin_matrix)
 
         hits += count(score -> score > score_threshold, (max_in_columns(matrix_product) / mean(read_chunk.len)))
-        #if num_read_total % 10000 == 0 println(num_read_total) end
-        println("$hits/$num_read_total")
+        #if num_reads_total % 10000 == 0 println(num_reads_total) end
+        println("$hits/$num_reads_total")
     end
     close(reader)
 end
@@ -69,20 +69,28 @@ function filter_fasta_gpu(
     # TODO: ask Kenta to make some stream that streams reads directly to byte matrix
 
     reader = FASTAReader(open(dataset_path), copy=false)
-    num_read_total = 0
-    hits = 0
+    num_reads_total = 0
+
+    #scores_d = CUDA.zeros(kmer_count.BinType, (ref_count, read_chunk_size))
+    all_max_scores = kmer_count.BinType[]
+
     while !eof(reader)
         for (i, record) in enumerate(reader)
-            num_read_total += 1
+            num_reads_total += 1
             str = sequence(String, record)
             string_to_byte_matrix!(reads_byte_matrix_h, str, i)
             i == read_chunk_size && break
         end
         reads_base_matrix_d = reads_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
         kmer_count.GPU.kmer_count_columns!(reads_kmer_count_bins_d, reads_base_matrix_d, k)
-        mul!(matrix_product, reference_bin_matrix, read_bin_matrix)
+        scores_d = subrefs_kmer_count_bins_d * reads_kmer_count_bins_d
+        max_scores = Array(CUDA.reduce(max, scores_d, dims=1))
 
-        hits += count(score -> score > score_threshold, (max_in_columns(matrix_product) / mean(read_chunk.len)))
+        append!(all_max_scores, max_scores)
+        println(num_reads_total)
     end
     close(reader)
+
+    histogram(all_max_scores, bins=50)
+    savefig("plot$(time()).png")
 end
