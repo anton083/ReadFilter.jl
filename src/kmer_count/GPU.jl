@@ -21,7 +21,7 @@ function kmer_count_rows!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}, k
     num_sequences, seq_len = size(sequences)
     CUDA.fill!(bins, zero(BinType))
 
-    function kernel(sequences, bins, k, mask, num_sequences)
+    function kernel(sequences, bins, k, mask, num_sequences, seq_len)
         seq_idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
         if seq_idx <= num_sequences
             kmer = unsigned(0)
@@ -40,10 +40,11 @@ function kmer_count_rows!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}, k
     end
 
     mask = unsigned(4^k - 1)
+    seq_len = size(sequences, 2)
     threads = 256
     blocks = ceil(Int, num_sequences / threads)
 
-    @cuda threads=threads blocks=blocks kernel(sequences, bins, k, mask, num_sequences)
+    @cuda threads=threads blocks=blocks kernel(sequences, bins, k, mask, num_sequences, seq_len)
 
     bins
 end
@@ -59,7 +60,7 @@ function kmer_count_columns!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}
     num_sequences, seq_len = size(sequences)
     CUDA.fill!(bins, zero(BinType))
 
-    function kernel(sequences, bins, k, mask, num_sequences)
+    function kernel(sequences, bins, k, mask, num_sequences, seq_len)
         seq_idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
         if seq_idx <= num_sequences
             kmer = unsigned(0)
@@ -77,6 +78,7 @@ function kmer_count_columns!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}
     end
 
     mask = unsigned(4^k - 1)
+    seq_len = size(sequences, 2)
     threads = 256
     blocks = ceil(Int, num_sequences / threads)
 
