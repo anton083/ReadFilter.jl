@@ -41,8 +41,11 @@ function subref_kmer_matrix(
     num_subrefs = length(subrefs)
 
     subref_base_matrix_d = strings_to_byte_matrix(String.(subrefs)) |> CuMatrix{UInt8} |> bytes_to_bases
+    @show subref_base_matrix_d
     subref_kmer_matrix_d = kmer_count.GPU.row_bins(num_subrefs, k)
+    @show subref_kmer_matrix_d
     kmer_count.GPU.kmer_count_rows!(subref_kmer_matrix_d, subref_base_matrix_d, k)
+    @show subref_kmer_matrix_d
 
     subrefs, subref_kmer_matrix_d
 end
