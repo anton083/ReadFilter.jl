@@ -15,6 +15,8 @@ function get_score_thresholds(
 
     reads_kmer_matrix_d = kmer_count.GPU.column_bins(samples_per_subref, k)
     reads_byte_matrix_h = byte_matrix(samples_per_subref, read_length)
+    println(size(reads_kmer_matrix_d))
+    println(size(reads_byte_matrix_h))
 
     score_thresholds = zeros(kmer_count.BinType, length(subrefs))
     for (i, subref) in enumerate(subrefs)
