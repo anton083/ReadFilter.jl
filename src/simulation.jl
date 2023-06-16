@@ -8,13 +8,13 @@ function get_score_thresholds(
     pident_threshold::Float64,
     k::Integer,
     read_length::Int,
-    samples_per_subref::Integer = 10,
+    samples_per_subref::Integer = 100,
 )
     subref_len = length(subrefs[1])
     mut_count = trunc(Int, (1 - pident_threshold) * read_length)
 
-    read_kmer_count_bins_d = kmer_count.GPU.column_bins(reference, k)
-    reads_byte_matrix_h = byte_matrix(num_samples, read_length)
+    read_kmer_count_bins_d = kmer_count.GPU.column_bins(samples_per_subref, k)
+    reads_byte_matrix_h = byte_matrix(samples_per_subref, read_length)
 
     score_thresholds = zeros(kmer_count.BinType, length(subrefs))
     for (i, subref) in enumerate(subrefs)
