@@ -12,7 +12,7 @@ function filter_fasta_gpu(
 
     score_thresholds_d = CuVector(get_score_thresholds(subrefs, subref_kmer_matrix_d, pident, read_length, k))
     
-    reads_kmer_count_bins_d = kmer_count.GPU.column_bins(read_chunk_size, k)
+    reads_kmer_matrix_d = kmer_count.GPU.column_bins(read_chunk_size, k)
     reads_byte_matrix_h = byte_matrix(read_chunk_size, read_length)
 
     # Pre-allocate scores_d? CUDA.zeros(kmer_count.BinType, (ref_count, read_chunk_size))
@@ -30,8 +30,8 @@ function filter_fasta_gpu(
             i == read_chunk_size && break
         end
         reads_base_matrix_d = reads_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
-        kmer_count.GPU.kmer_count_columns!(reads_kmer_count_bins_d, reads_base_matrix_d, k)
-        scores_d = subrefs_kmer_count_bins_d * reads_kmer_count_bins_d
+        kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d, k)
+        scores_d = subrefs_kmer_matrix_d * reads_kmer_matrix_d
 
         match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0)
         match_indices = findall(Vector(vec(match_bools_d)))
