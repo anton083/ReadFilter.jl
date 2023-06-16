@@ -8,8 +8,13 @@ function filter_fasta_gpu(
     read_chunk_size::Integer = 100000,
     read_length::Integer = 90,
 )
-    subrefs, subref_kmer_matrix_d = subref_kmer_matrix(ref_path, subref_length, read_length, k)
-    println(sum(subref_kmer_matrix_d))
+    refs = get_refs(ref_path)
+    subrefs = get_subrefs(refs, subref_length, read_length)
+    num_subrefs = length(subrefs)
+
+    subref_base_matrix_d = strings_to_byte_matrix(String.(subrefs)) |> CuMatrix{UInt8} |> bytes_to_bases
+    subref_kmer_matrix_d = kmer_count.GPU.row_bins(num_subrefs, k)
+    kmer_count.GPU.kmer_count_rows!(subref_kmer_matrix_d, subref_base_matrix_d, k)
 
     score_thresholds_d = CuVector(get_score_thresholds(subrefs, subref_kmer_matrix_d, pident, read_length, k))
     
