@@ -18,7 +18,6 @@ function get_score_thresholds(
 
     score_thresholds = zeros(kmer_count.BinType, length(subrefs))
     for (i, subref) in enumerate(subrefs)
-        println(subref_kmer_matrix_d)
         subref_kmer_count = subref_kmer_matrix_d[i:i, :]
 
         for j in 1:samples_per_subref
