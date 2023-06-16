@@ -1,24 +1,4 @@
 
-"""
-Takes a sequence lengths and splits it into `subranges` of length `sublength` that overlap by `overlap`.
-The overlap may be larger between the last and next to last subrange in case
-"""
-function get_subranges(full_length::Int, sublength::Int, overlap::Int)
-    if full_length < sublength
-        throw(ErrorException(
-            "`full_length` ($full_length) needs to be greater than or equal to `sublength` ($sublength)"))
-    end
-
-    full_range = 1:full_length
-    start_points = full_range.start:(sublength-overlap):(full_range.stop-sublength+1)
-    subranges = [start:(start+sublength-1) for start in start_points]
-
-    if subranges[end].stop < full_length
-        push!(subranges, (full_length-sublength+1):full_length)
-    end
-    subranges
-end
-
 # subsequences aren't views because we need the data field to be separate
 @inline subsequence(seq::LongDNA{4}, subrange::UnitRange{Int}) = seq[subrange]
 
@@ -48,4 +28,21 @@ function get_subrefs(
     subrefs = reduce(vcat, subsequences.(refs, subranges))
 
     subrefs
+end
+
+function subref_kmer_matrix(
+    ref_path::String,
+    subref_length::Integer,
+    read_length::Integer,
+    k::Integer,
+)
+    refs = get_refs(ref_path)
+    subrefs = get_subrefs(refs, subref_length, read_length)
+    num_subrefs = length(subrefs)
+
+    subref_base_matrix_d = strings_to_byte_matrix(String.(subrefs)) |> CuMatrix{UInt8} |> bytes_to_bases
+    subref_kmer_matrix_d = kmer_count.GPU.row_bins(num_subrefs, k)
+    kmer_count.GPU.kmer_count_rows!(subref_kmer_matrix_d, subref_base_matrix_d, k)
+
+    subref_kmer_matrix_d
 end

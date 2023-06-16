@@ -69,7 +69,7 @@ function kmer_count!(bins::Vector{UInt16}, seq::LongDNA{4}, k::Integer)
     bins
 end
 
-
+#=
 function reference_kmer_matrix(refs::Vector{LongDNA{4}}, k::Integer)
     N = lastindex(refs)
     bin_matrix = zeros(UInt16, (N, 4^k))
@@ -148,5 +148,6 @@ function read_kmer_matrix!(bin_matrix::Matrix{UInt16}, reads::Vector{LongDNA{4}}
     end
     bin_matrix
 end
+=#
 
 end

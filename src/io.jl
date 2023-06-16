@@ -28,20 +28,22 @@ function strings_to_byte_matrix(strings::Vector{String})
     byte_matrix
 end
 
-function strings_to_byte_matrix!(byte_matrix::Matrix{UInt8}, strings::Vector{String})
-    lengths = lastindex.(strings) # lastindex is faster than length
-    @assert length(Set(lengths)) == 1 "Strings have different lengths"
-    @assert size(byte_matrix) == (length(strings), lengths[1]) "Sequences don't match byte_matrix. Byte matrix size $(size(byte_matrix)) doesn't match to $((length(seqs), lengths[1]))"
-    
-    for (i, str) in enumerate(strings)
-        byte_matrix[i, :] = codeunits(str)
-    end
-    byte_matrix
-end
 
-function string_to_byte_matrix!(byte_matrix::Matrix{UInt8}, str::String, i::Integer)
-    @assert size(byte_matrix, 2) == lastindex(str) "Sequence length doesn't match byte_matrix."
-    byte_matrix[i, :] = codeunits(str)
+"""
+The type returned by calling `codeunits(sequence(String, record))`.
+
+It would be a little faster -- although less flexible -- to use `codeunits(sequence(record)).
+"""
+const CodeUnitsStringView = Base.CodeUnits{UInt8, String}
+
+function byte_seq_to_byte_matrix!(
+    byte_matrix::Matrix{UInt8},
+    byte_seq::CodeUnitsStringView,
+    len::Integer,
+    i::Integer,
+)
+    new_len = min(len, size(byte_matrix, 2))
+    byte_matrix[i, 1:new_len] = view(byte_seq, 1:new_len)
 end
 
 #function load_seqs
