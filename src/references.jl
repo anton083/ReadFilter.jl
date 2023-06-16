@@ -29,3 +29,20 @@ function get_subrefs(
 
     subrefs
 end
+
+function subref_kmer_matrix(
+    ref_path::String,
+    subref_length::Integer,
+    read_length::Integer,
+    k::Integer,
+)
+    refs = get_refs(ref_path)
+    subrefs = get_subrefs(refs, subref_length, read_length)
+    num_subrefs = length(subrefs)
+
+    subref_base_matrix_d = strings_to_byte_matrix(String.(subrefs)) |> CuMatrix{UInt8} |> bytes_to_bases
+    subref_kmer_matrix_d = kmer_count.GPU.row_bins(num_subrefs, k)
+    kmer_count.GPU.kmer_count_rows!(subref_kmer_matrix_d, subref_base_matrix_d, k)
+
+    subrefs, subref_kmer_matrix_d
+end
