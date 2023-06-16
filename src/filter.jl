@@ -42,6 +42,8 @@ function filter_fasta_gpu(
     end
     close(reader)
 
+    println("$(length(flagged_reads))/$read_count")
+
     flagged_reads, all_max_scores
 end
 
