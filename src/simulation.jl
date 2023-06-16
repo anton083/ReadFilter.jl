@@ -13,7 +13,7 @@ function get_score_thresholds(
     subref_len = length(subrefs[1])
     mut_count = trunc(Int, (1 - pident_threshold) * read_length)
 
-    reads_kmer_matrix_d = kmer_count.GPU.column_bins(samples_per_subref, k)
+    reads_kmer_matrix_d = CUDA.zeros(kmer_count.BinType, (4^k, samples_per_subref))#kmer_count.GPU.column_bins(samples_per_subref, k)
     reads_byte_matrix_h = byte_matrix(samples_per_subref, read_length)
     println(size(reads_kmer_matrix_d))
     println(size(reads_byte_matrix_h))
