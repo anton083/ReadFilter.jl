@@ -40,10 +40,10 @@ function subref_kmer_matrix(
     subrefs = get_subrefs(refs, subref_length, read_length)
     num_subrefs = length(subrefs)
 
-    subref_byte_matrix_h = byte_matrix(num_subrefs, subref_len)
+    subref_byte_matrix_h = byte_matrix(num_subrefs, subref_length)
     for (j, subref) in enumerate(subrefs)
         byte_seq = codeunits(String(subref))
-        byte_seq_to_byte_matrix!(subref_byte_matrix_h, byte_seq, subref_len, j)
+        byte_seq_to_byte_matrix!(subref_byte_matrix_h, byte_seq, subref_length, j)
     end
     subref_base_matrix_d = subref_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
 
