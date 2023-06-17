@@ -5,7 +5,7 @@ function filter_fasta_gpu(
     pident::Float64 = 0.9;
     k::Integer = 6,
     subref_length::Integer = 1024,
-    read_chunk_size::Integer = 100000,
+    read_chunk_size::Integer = 100,
     read_length::Integer = 90,
 )
     subrefs, subref_kmer_matrix_d = subref_kmer_matrix(ref_path, subref_length, read_length, k)
@@ -37,10 +37,12 @@ function filter_fasta_gpu(
         match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0, dims=1)
         match_indices = findall(Vector(vec(match_bools_d)))
         append!(flagged_reads, match_indices)
+        println(match_indices)
 
         max_scores = Array(CUDA.reduce(max, scores_d, dims=1))
         append!(all_max_scores, view(max_scores, 1:(read_count - 1) % read_chunk_size + 1))
-        println("$(maximum(max_scores)), $(length(max_scores)), $(mean(max_scores))")
+        #println("$(maximum(max_scores)), $(length(max_scores)), $(mean(max_scores))")
+        println(max_scores)
         println("$(length(flagged_reads))/$read_count")
     end
     close(reader)
