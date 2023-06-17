@@ -39,10 +39,10 @@ function filter_fasta_gpu(
 
         max_scores = Array(CUDA.reduce(max, scores_d, dims=1))
         append!(all_max_scores, view(max_scores, 1:(read_count - 1) % read_chunk_size + 1))
+        
+        println("$(length(flagged_reads))/$read_count")
     end
     close(reader)
-
-    println("$(length(flagged_reads))/$read_count")
 
     flagged_reads, all_max_scores
 end
