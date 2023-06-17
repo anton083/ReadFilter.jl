@@ -40,7 +40,13 @@ function subref_kmer_matrix(
     subrefs = get_subrefs(refs, subref_length, read_length)
     num_subrefs = length(subrefs)
 
-    subref_base_matrix_d = strings_to_byte_matrix(String.(subrefs)) |> CuMatrix{UInt8} |> bytes_to_bases
+    subref_byte_matrix_h = byte_matrix(num_subrefs, length(subrefs[1]))
+    for subref in subrefs
+        byte_seq = codeunits(String(subref))
+        byte_seq_to_byte_matrix!(subref_byte_matrix_h, byte_seq, read_length, j)
+    end
+    subref_base_matrix_d = subref_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
+    
     subref_kmer_matrix_d = kmer_count.GPU.row_bins(num_subrefs, k)
     kmer_count.GPU.kmer_count_rows!(subref_kmer_matrix_d, subref_base_matrix_d, k)
 
