@@ -11,6 +11,7 @@ function filter_fasta_gpu(
     subrefs, subref_kmer_matrix_d = subref_kmer_matrix(ref_path, subref_length, read_length, k)
 
     score_thresholds_d = CuVector(get_score_thresholds(subrefs, subref_kmer_matrix_d, pident, k, read_length))
+    println(mean(score_thresholds_d))
     
     reads_kmer_matrix_d = kmer_count.GPU.column_bins(read_chunk_size, k)
     reads_byte_matrix_h = byte_matrix(read_chunk_size, read_length)
@@ -39,7 +40,7 @@ function filter_fasta_gpu(
 
         max_scores = Array(CUDA.reduce(max, scores_d, dims=1))
         append!(all_max_scores, view(max_scores, 1:(read_count - 1) % read_chunk_size + 1))
-        
+        println("$(max(max_scores)), $(mean(max_scores))")
         println("$(length(flagged_reads))/$read_count")
     end
     close(reader)
