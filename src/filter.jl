@@ -34,12 +34,12 @@ function filter_fasta_gpu(
         kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d, k)
         scores_d = subref_kmer_matrix_d * reads_kmer_matrix_d
 
-        match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0, dims=1)
+        match_bools_d = CUDA.mapslices(mean, scores_d .- score_thresholds_d .> 0, dims=1)
         match_indices = findall(Vector(vec(match_bools_d)))
         append!(flagged_reads, match_indices)
         println(match_indices)
 
-        max_scores = Array(CUDA.reduce(max, scores_d, dims=1))
+        max_scores = Array(CUDA.reduce(mean, scores_d, dims=1))
         append!(all_max_scores, view(max_scores, 1:(read_count - 1) % read_chunk_size + 1))
         #println("$(maximum(max_scores)), $(length(max_scores)), $(mean(max_scores))")
         println(max_scores)
