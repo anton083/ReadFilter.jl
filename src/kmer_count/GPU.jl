@@ -32,8 +32,7 @@ function kmer_count_rows!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}, k
             for i in k:seq_len
                 base = sequences[seq_idx, i]
                 kmer = ((kmer << 2) & mask) + base
-                CUDA.@atomic bin_val = bins[seq_idx, kmer + 1]
-                CUDA.@atomic bins[seq_idx, kmer + 1] += one(BinType) - bin_val
+                CUDA.@atomic bins[seq_idx, kmer + 1] += one(BinType)
             end
         end
         return
@@ -46,11 +45,13 @@ function kmer_count_rows!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}, k
 
     @cuda threads=threads blocks=blocks kernel(sequences, bins, k, mask, num_sequences, seq_len)
 
-    bins
+    oneize.(bins)
 end
 
 
 column_bins(N::Integer, k::Integer) = CUDA.zeros(BinType, (4^k, N))
+
+oneize(x) = BinType(x > 0)
 
 """
 The column version of bins has size `4^k x N` 
@@ -71,8 +72,7 @@ function kmer_count_columns!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}
             for i in k:seq_len
                 base = sequences[seq_idx, i]
                 kmer = ((kmer << 2) & mask) + base
-                CUDA.@atomic bin_val = bins[kmer + 1, seq_idx]
-                CUDA.@atomic bins[kmer + 1, seq_idx] += one(BinType) - bin_val
+                CUDA.@atomic bins[kmer + 1, seq_idx] += one(BinType)
             end
         end
         return
@@ -85,7 +85,7 @@ function kmer_count_columns!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}
 
     @cuda threads=threads blocks=blocks kernel(sequences, bins, k, mask, num_sequences, seq_len)
 
-    bins
+    oneize.(bins)
 end
 
 end
