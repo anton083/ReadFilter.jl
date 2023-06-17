@@ -45,7 +45,7 @@ function kmer_count_rows!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}, k
 
     @cuda threads=threads blocks=blocks kernel(sequences, bins, k, mask, num_sequences, seq_len)
 
-    bins
+    CUDA.clamp!(bins, 0, 1)
 end
 
 
