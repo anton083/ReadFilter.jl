@@ -10,7 +10,7 @@ function filter_fasta_gpu(
 )
     subrefs, subref_kmer_matrix_d = subref_kmer_matrix(ref_path, subref_length, read_length, k)
 
-    score_thresholds_d = CuVector(get_score_thresholds(subrefs, subref_kmer_matrix_d, pident, read_length, k))
+    score_thresholds_d = CuVector(get_score_thresholds(subrefs, subref_kmer_matrix_d, pident, k, read_length))
     
     reads_kmer_matrix_d = kmer_count.GPU.column_bins(read_chunk_size, k)
     reads_byte_matrix_h = byte_matrix(read_chunk_size, read_length)
