@@ -36,11 +36,11 @@ function filter_fasta_gpu(
 
         match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0, dims=1)
         match_indices = findall(Vector(vec(match_bools_d)))
-        append!(match_indices, match_indices)
+        append!(flagged_reads, match_indices)
 
         max_scores = Array(CUDA.reduce(max, scores_d, dims=1))
         append!(all_max_scores, view(max_scores, 1:(read_count - 1) % read_chunk_size + 1))
-        println("$(maximum(max_scores)), $(mean(max_scores))")
+        println("$(maximum(max_scores)), $(length(max_scores)), $(mean(max_scores))")
         println("$(length(flagged_reads))/$read_count")
     end
     close(reader)
