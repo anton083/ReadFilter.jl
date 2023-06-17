@@ -33,7 +33,7 @@ function filter_fasta_gpu(
         kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d, k)
         scores_d = subref_kmer_matrix_d * reads_kmer_matrix_d
 
-        match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0)
+        match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0, dims=1)
         match_indices = findall(Vector(vec(match_bools_d)))
         append!(match_indices, match_indices)
 
