@@ -40,7 +40,7 @@ function filter_fasta_gpu(
         println(CUDA.mapslices(mean, scores_d, dims=1))
         println(CUDA.mapslices(maximum, scores_d, dims=1))
 
-        max_scores = Array(CUDA.reduce(mean, scores_d, dims=1))
+        max_scores = Array(CUDA.reduce(max, scores_d, dims=1))
         append!(all_max_scores, view(max_scores, 1:(read_count - 1) % read_chunk_size + 1))
         #println("$(maximum(max_scores)), $(length(max_scores)), $(mean(max_scores))")
         println(max_scores)
