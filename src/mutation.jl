@@ -22,7 +22,7 @@ end
 function mutate!(seq::LongDNA{4}, mut_count::Int) 
     mutation_positions = sample(1:seq.len, mut_count, replace=false)
     for mut_pos in mutation_positions
-        seq[mut_pos] = rand(get(MUTATION_DICT, seq[i], (DNA_A,)))
+        seq[mut_pos] = rand(get(MUTATION_DICT, seq[mut_pos], (DNA_A,)))
     end
     seq
 end
