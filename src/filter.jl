@@ -31,7 +31,7 @@ function filter_fasta_gpu(
         end
         reads_base_matrix_d = reads_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
         kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d, k)
-        scores_d = subrefs_kmer_matrix_d * reads_kmer_matrix_d
+        scores_d = subref_kmer_matrix_d * reads_kmer_matrix_d
 
         match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0)
         match_indices = findall(Vector(vec(match_bools_d)))
