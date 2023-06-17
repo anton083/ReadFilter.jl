@@ -9,7 +9,7 @@ const MUTATION_DICT = Dict{DNA, Tuple{DNA, DNA, DNA}}(
 function mutate!(seq::LongDNA{4}, mut_rate::Float64) 
     for i in eachindex(seq)
         if rand() < mut_rate
-            seq[i] = rand(MUTATION_DICT[seq[i]])
+            seq[i] = rand(get(MUTATION_DICT, seq[i], (DNA_A,)))
         end
     end
     seq
@@ -22,7 +22,7 @@ end
 function mutate!(seq::LongDNA{4}, mut_count::Int) 
     mutation_positions = sample(1:seq.len, mut_count, replace=false)
     for mut_pos in mutation_positions
-        seq[mut_pos] = rand(MUTATION_DICT[seq[mut_pos]])
+        seq[mut_pos] = rand(get(MUTATION_DICT, seq[i], (DNA_A,)))
     end
     seq
 end
