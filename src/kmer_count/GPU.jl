@@ -33,7 +33,7 @@ function kmer_count_rows!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}, k
                 base = sequences[seq_idx, i]
                 kmer = ((kmer << 2) & mask) + base
                 #bin_val = bins[seq_idx, kmer + 1]
-                CUDA.@atomic bins[seq_idx, kmer + 1] += one(BinType) - bin_val
+                CUDA.@atomic bins[seq_idx, kmer + 1] += one(BinType)# - bin_val
             end
         end
         return
@@ -72,7 +72,7 @@ function kmer_count_columns!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}
                 base = sequences[seq_idx, i]
                 kmer = ((kmer << 2) & mask) + base
                 #bin_val = bins[kmer + 1, seq_idx]
-                CUDA.@atomic bins[kmer + 1, seq_idx] += one(BinType) - bin_val
+                CUDA.@atomic bins[kmer + 1, seq_idx] += one(BinType)# - bin_val
             end
         end
         return
