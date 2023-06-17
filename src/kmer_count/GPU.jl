@@ -32,7 +32,7 @@ function kmer_count_rows!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}, k
             for i in k:seq_len
                 base = sequences[seq_idx, i]
                 kmer = ((kmer << 2) & mask) + base
-                CUDA.@allowscalar bins[seq_idx, kmer + 1] = one(BinType)
+                CUDA.@atomic bins[seq_idx, kmer + 1] += one(BinType)
             end
         end
         return
@@ -70,8 +70,16 @@ function kmer_count_columns!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}
             for i in k:seq_len
                 base = sequences[seq_idx, i]
                 kmer = ((kmer << 2) & mask) + base
-                CUDA.@allowscalar bins[kmer + 1, seq_idx] = one(BinType)
+                CUDA.@atomic bins[kmer + 1, seq_idx] += one(BinType)
             end
+        end
+        return
+    end
+
+    function map_kernel(bins)
+        idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+        if idx <= length(bins)
+            bins[idx] = BinType(bins[idx] > 0)
         end
         return
     end
@@ -80,10 +88,13 @@ function kmer_count_columns!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}
     seq_len = size(sequences, 2)
     threads = 256
     blocks = ceil(Int, num_sequences / threads)
+    total_bins = length(bins)
 
     @cuda threads=threads blocks=blocks kernel(sequences, bins, k, mask, num_sequences, seq_len)
+    @cuda threads=threads blocks=ceil(Int, total_bins / threads) map_kernel(bins)
 
-    bins
+    return bins
 end
+
 
 end
