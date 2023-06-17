@@ -45,13 +45,11 @@ function kmer_count_rows!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}, k
 
     @cuda threads=threads blocks=blocks kernel(sequences, bins, k, mask, num_sequences, seq_len)
 
-    oneize.(bins)
+    bins
 end
 
 
 column_bins(N::Integer, k::Integer) = CUDA.zeros(BinType, (4^k, N))
-
-oneize(x) = BinType(x > 0)
 
 """
 The column version of bins has size `4^k x N` 
@@ -85,7 +83,7 @@ function kmer_count_columns!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}
 
     @cuda threads=threads blocks=blocks kernel(sequences, bins, k, mask, num_sequences, seq_len)
 
-    oneize.(bins)
+    bins
 end
 
 end
