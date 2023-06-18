@@ -14,6 +14,24 @@ function read_records(fasta_path::String, num_records::Union{Integer, Float64} =
     records
 end
 
+function filter_fasta(
+    read_index_set::Set{Int},
+    fasta_path::String,
+    output_file::sString,
+)
+    reader = FASTAReader(open.(fasta_path, "r"))
+    writer = FASTAWriter(open(output_file, "w"))
+
+    for (read_index, record) in enumerate(reader)
+        if read_index in read_index_set
+            write(writer, record)
+        end
+    end
+
+    close(reader)
+    close(writer)
+end
+
 byte_matrix(num_seqs::Integer, seq_length::Integer) = zeros(UInt8, (num_seqs, seq_length))
 
 """

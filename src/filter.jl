@@ -1,5 +1,5 @@
 
-function filter_fasta_gpu(
+function find_reads_gpu(
     ref_path::String,
     dataset_path::String,
     pident::Float64 = 0.9;
