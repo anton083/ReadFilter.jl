@@ -10,6 +10,9 @@ function get_refs(ref_path::String, num_refs::Union{Integer, Float64} = Inf)
     degap.(sequence.(LongDNA{4}, read_records(ref_path, num_refs)))
 end
 
+"""
+Takes a vector of reference sequences and splits them into equally-sized chunks (subreferences).
+"""
 function get_subrefs(
     refs::Vector{LongDNA{4}},
     sublength::Integer,
@@ -29,6 +32,7 @@ function get_subrefs(
 
     subrefs
 end
+
 
 function subref_kmer_matrix(
     ref_path::String,

@@ -28,7 +28,6 @@ function get_score_thresholds(
         end
         reads_base_matrix_d = reads_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
         kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d, k)
-        #println(subref_kmer_count * reads_kmer_matrix_d)
         score_thresholds[i] = mean(subref_kmer_count * reads_kmer_matrix_d)
     end
     

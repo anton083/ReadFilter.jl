@@ -5,7 +5,7 @@ max_in_columns(matrix::Array{Int, 2}) = mapslices(maximum, matrix, dims=1)
 
 """
 Takes a sequence lengths and splits it into `subranges` of length `sublength` that overlap by `overlap`.
-The overlap may be larger between the last and next to last subrange in case
+The overlap may be larger between the last and next to last subrange in case the last one doesn't perfectly fit.
 """
 function get_subranges(full_length::Int, sublength::Int, overlap::Int)
     if full_length < sublength
