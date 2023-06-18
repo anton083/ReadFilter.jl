@@ -34,7 +34,7 @@ function filter_fasta_gpu(
         scores_d = subref_kmer_matrix_d * reads_kmer_matrix_d
 
         match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0, dims=1)
-        match_indices = findall(Vector(vec(match_bools_d)))
+        match_indices = findall(Vector(vec(match_bools_d))) .+ (read_count - read_count % read_chunk_size)
         append!(flagged_reads, match_indices)
         #println(CUDA.mapslices(mean, scores_d, dims=1))
         #println(CUDA.mapslices(maximum, scores_d, dims=1))
