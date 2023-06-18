@@ -43,7 +43,8 @@ function filter_fasta_gpu(
         #append!(all_max_scores, view(max_scores, 1:(read_count - 1) % read_chunk_size + 1))
         #println("$(maximum(max_scores)), $(length(max_scores)), $(mean(max_scores))")
         #println(max_scores)
-        println("$(length(flagged_reads))/$read_count")
+        n = length(flagged_reads)
+        println("$n/$read_count ($(100*round(n/read_count, digits=2))%)")
     end
     close(reader)
 
