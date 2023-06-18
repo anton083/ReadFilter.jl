@@ -17,7 +17,7 @@ end
 function filter_fasta(
     read_index_set::Set{Int},
     fasta_path::String,
-    output_file::sString,
+    output_file::String,
 )
     reader = FASTAReader(open.(fasta_path, "r"))
     writer = FASTAWriter(open(output_file, "w"))
