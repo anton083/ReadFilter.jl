@@ -2,6 +2,8 @@
 
 module ReadFilter
 
+    const BinType = Float16
+
     using BioSequences
     using FASTX
     using LinearAlgebra
@@ -15,7 +17,7 @@ module ReadFilter
     include("references.jl")
     include("mutation.jl")
     include("simulation.jl")
-    include("filter.jl")
+    include("API.jl")
 
     export find_reads_gpu, filter_fasta
 

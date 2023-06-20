@@ -6,8 +6,9 @@ function find_reads_gpu(
     k::Integer = 6,
     subref_length::Integer = 1024,
     read_chunk_size::Integer = 100000,
-    read_length::Integer = 90,
 )
+    read_length = longest_read_fasta(dataset_path)
+
     subrefs, subref_kmer_matrix_d = subref_kmer_matrix(ref_path, subref_length, read_length, k)
 
     score_thresholds_d = CuVector(get_score_thresholds(subrefs, subref_kmer_matrix_d, pident, k, read_length))
@@ -17,7 +18,6 @@ function find_reads_gpu(
 
     # Pre-allocate scores_d? CUDA.zeros(kmer_count.BinType, (ref_count, read_chunk_size))
     flagged_reads = Int64[]
-    #all_max_scores = kmer_count.BinType[]
 
     reader = FASTAReader(open(dataset_path), copy=false)
     read_count = 0
@@ -33,16 +33,12 @@ function find_reads_gpu(
         kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d, k)
         scores_d = subref_kmer_matrix_d * reads_kmer_matrix_d
 
-        match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0, dims=1)
-        match_indices = findall(Vector(vec(match_bools_d))) .+ (read_count - read_count % read_chunk_size)
-        append!(flagged_reads, match_indices)
-        #println(CUDA.mapslices(mean, scores_d, dims=1))
-        #println(CUDA.mapslices(maximum, scores_d, dims=1))
+        indices_of_matches = get_indices_of_matches(scores_d, score_thresholds_d)
+        indices_of_matches .+= read_count - read_count % read_chunk_size
+        # TODO: add check for homopolymers
 
-        #max_scores = Array(CUDA.reduce(max, scores_d, dims=1))
-        #append!(all_max_scores, view(max_scores, 1:(read_count - 1) % read_chunk_size + 1))
-        #println("$(maximum(max_scores)), $(length(max_scores)), $(mean(max_scores))")
-        #println(max_scores)
+        append!(flagged_reads, indices_of_matches)
+
         n = length(flagged_reads)
         println("$n/$read_count ($(100*round(n/read_count, digits=2))%)")
     end

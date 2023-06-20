@@ -1,7 +1,7 @@
 
 module kmer_count
 
-    const BinType = Float16
+    import ..ReadFilter: BinType
 
     #include("CPU.jl")
     include("GPU.jl")

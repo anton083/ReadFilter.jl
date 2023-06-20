@@ -65,3 +65,19 @@ Only designed for ACGT
 For alphabetical order (both upper/lowercase) use: (byte - 0x01 - (byte % 0x20 == 0x03)) & 0x03
 """
 @inline bytes_to_bases(byte_matrix::CuMatrix{UInt8}) = byte_matrix .>> 1 .& 0x03
+
+function longest_read_fasta(
+    fasta_path::String,
+    num_records::Int = 10,
+)
+    maximum(seqsize.(read_records(fasta_path, num_records)))
+end
+
+function get_indices_of_matches(
+    scores_d::CuMatrix{BinType},
+    score_thresholds_d::CuVector{BinType},
+)
+    match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0, dims=1)
+    indices_of_matches = findall(Vector(vec(match_bools_d)))
+    indices_of_matches
+end
