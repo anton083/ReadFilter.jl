@@ -4,7 +4,7 @@ Assigns a score threshold to each subreference based on the average scores of un
 """
 function get_score_thresholds(
     subrefs::Vector{LongDNA{4}},
-    subref_kmer_matrix_d::CuMatrix{kmer_count.BinType},
+    subref_kmer_matrix_d::CuMatrix{BinType},
     pident_threshold::Float64,
     k::Integer,
     read_length::Int,
@@ -16,7 +16,7 @@ function get_score_thresholds(
     reads_kmer_matrix_d = kmer_count.GPU.column_bins(samples_per_subref, k)
     reads_byte_matrix_h = byte_matrix(samples_per_subref, read_length)
 
-    score_thresholds = zeros(kmer_count.BinType, length(subrefs))
+    score_thresholds = zeros(BinType, length(subrefs))
     for (i, subref) in enumerate(subrefs)
         subref_kmer_count = subref_kmer_matrix_d[i:i, :]
 

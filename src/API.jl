@@ -16,7 +16,7 @@ function find_reads_gpu(
     reads_kmer_matrix_d = kmer_count.GPU.column_bins(read_chunk_size, k)
     reads_byte_matrix_h = byte_matrix(read_chunk_size, read_length)
 
-    # Pre-allocate scores_d? CUDA.zeros(kmer_count.BinType, (ref_count, read_chunk_size))
+    # Pre-allocate scores_d? CUDA.zeros(BinType, (ref_count, read_chunk_size))
     flagged_reads = Int64[]
 
     reader = FASTAReader(open(dataset_path), copy=false)
