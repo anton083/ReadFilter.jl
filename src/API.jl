@@ -40,7 +40,7 @@ function find_reads_gpu(
         append!(flagged_reads, indices_of_matches)
 
         n = length(flagged_reads)
-        println("$n/$read_count ($(100*round(n/read_count, digits=2))%)")
+        println("$n/$read_count ($(round(100*n/read_count, digits=2))%)")
     end
     close(reader)
 
