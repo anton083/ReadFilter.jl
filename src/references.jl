@@ -31,7 +31,7 @@ function get_subrefs(
     subrefs = reduce(vcat, subsequences.(refs, subranges))
 
     # use divrem(i, N) to get (is_revcomp, j)
-    append!(subrefs, reverse_complement.(subrefs))
+    #append!(subrefs, reverse_complement.(subrefs))
 
     subrefs
 end
