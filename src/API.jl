@@ -7,7 +7,7 @@ function find_reads_gpu(
     subref_length::Integer = 1024,
     read_chunk_size::Integer = 100000,
 )
-    read_length = 91#longest_read_fasta(dataset_path)
+    read_length = longest_read_fasta(dataset_path)
 
     subrefs, subref_kmer_matrix_d = subref_kmer_matrix(ref_path, subref_length, read_length, k)
 
