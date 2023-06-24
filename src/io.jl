@@ -64,7 +64,7 @@ Uses bit manipulation to get convert ACGT into 4 unique bytes between 0 and 3.
 Only designed for ACGT
 For alphabetical order (both upper/lowercase) use: (byte - 0x01 - (byte % 0x20 == 0x03)) & 0x03
 """
-@inline bytes_to_bases(byte_matrix::CuMatrix{UInt8}) = byte_matrix .>> 1 .& 0x03
+bytes_to_bases(byte_matrix::CuMatrix{UInt8}) = byte_matrix .>> 1 .& 0x03
 
 const CHAR_VECTOR = collect("ACTG")
 const BYTE_VECTOR = UInt8.(CHAR_VECTOR)

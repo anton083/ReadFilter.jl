@@ -26,7 +26,7 @@ function get_score_thresholds(
             byte_seq = codeunits(String(read))
             byte_seq_to_byte_matrix!(reads_byte_matrix_h, byte_seq, read_length, j)
         end
-        reads_base_matrix_d = reads_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
+        reads_base_matrix_d = bytes_to_bases(CuMatrix{UInt8}(reads_byte_matrix_h))
         kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d)
         score_thresholds[i] = BinType(mean(Float32, subref_kmer_count * reads_kmer_matrix_d))
     end
