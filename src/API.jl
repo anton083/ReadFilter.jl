@@ -54,10 +54,10 @@ function find_reads_gpu(
 
             hits_byte_matrix_d = bases_to_bytes((reads_base_matrix_d[read_indices_d, :]))
 
-            #=global_read_indices_d = read_indices_d .+ global_index_offset
+            global_read_indices_d = read_indices_d .+ global_index_offset
 
             #read_indices_d = filter(idx -> idx <= num_new_reads, read_indices_d)
-            write_matched_reads(
+            #=write_matched_reads(
                 writer, read_count, hits_byte_matrix_d, global_read_indices_d, subref_indices_d, hits_scores_d)
 
             append!(flagged_reads, Vector(global_read_indices_d))=#
