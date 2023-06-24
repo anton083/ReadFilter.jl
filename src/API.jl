@@ -52,7 +52,7 @@ function find_reads_gpu(
             subref_indices_d = getindex.(hits_indices_d, 1)
             hits_scores_d = max_scores_d[read_indices_d]
 
-            hits_byte_matrix_d = bases_to_bytes((reads_base_matrix_d[read_indices_d, :]))
+            #=hits_byte_matrix_d = bases_to_bytes((reads_base_matrix_d[read_indices_d, :]))
 
             global_read_indices_d = read_indices_d .+ global_index_offset
 
@@ -60,7 +60,7 @@ function find_reads_gpu(
             write_matched_reads(
                 writer, read_count, hits_byte_matrix_d, global_read_indices_d, subref_indices_d, hits_scores_d)
 
-            append!(flagged_reads, Vector(global_read_indices_d))
+            append!(flagged_reads, Vector(global_read_indices_d))=#
         end
 
         n = length(flagged_reads)
