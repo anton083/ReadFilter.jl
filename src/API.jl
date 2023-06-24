@@ -58,7 +58,7 @@ function find_reads_gpu(
         write_matched_reads(
             writer, hits_byte_matrix_d, global_read_indices_d, subref_indices_d, hits_scores_d)
 
-        append!(flagged_reads, global_read_indices)
+        append!(flagged_reads, Vector(global_read_indices_d))
 
         n = length(flagged_reads)
         println("$n/$read_count ($(round(100*n/read_count, digits=2))%)")
