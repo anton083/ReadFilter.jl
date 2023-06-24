@@ -20,7 +20,7 @@ function get_subranges(full_length::Int, sublength::Int, overlap::Int)
     if subranges[end].stop < full_length
         push!(subranges, (full_length-sublength+1):full_length)
     end
-    
+
     subranges
 end
 
@@ -28,3 +28,5 @@ function random_subrange(L::Integer, R::Integer)
     start = rand(1:L-R+1)
     start:start+R-1
 end
+
+mean_f16(arr::AbstractArray{Float16}) = Float16(mean(Float64.(arr)))
