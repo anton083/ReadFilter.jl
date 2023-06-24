@@ -45,7 +45,9 @@ function find_reads_gpu(
         max_scores_indices_d = CUDA.argmax(scores_d, dims=1)
         max_scores_d = scores_d[max_scores_indices_d]
         hits = Vector(max_scores_indices_d[findall(s -> s > score_threshold, max_scores_d)])
+        println(length(hits))
         filter!(idx -> idx[2] <= num_new_reads, hits)
+        println(length(hits))
 
         subref_indices = getindex.(hits, 1)
         read_indices = getindex.(hits, 2)
