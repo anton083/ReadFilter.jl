@@ -88,9 +88,9 @@ function write_matched_reads(
     subref_indices::AbstractVector{<:Integer},
     match_scores::AbstractVector{BinType},
 )
-    for (seq, read_idx, subref_idx, score) in zip(eachrow(seq_matrix), read_indices, subref_indices, match_scores)
+    #=for (seq, read_idx, subref_idx, score) in zip(eachrow(seq_matrix), read_indices, subref_indices, match_scores)
         desc = "$read_idx $(subref_idx) $(round(score, digits=1))"
         seq = String(seq)
         write(writer, FASTARecord(desc, seq))
-    end
+    end=#
 end
