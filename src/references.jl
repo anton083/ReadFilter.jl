@@ -74,7 +74,7 @@ function subref_kmer_matrix(
     k::Integer,
 )
     num_subrefs = length(subrefs)
-    println("$num_subrefs, $subref_length, $k")
+
     subref_byte_matrix_h = byte_matrix(num_subrefs, subref_length)
     for (j, subref) in enumerate(subrefs)
         byte_seq = codeunits(String(get_sequence(subref)))

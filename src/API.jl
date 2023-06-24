@@ -50,7 +50,7 @@ function find_reads_gpu(
 
         subref_indices_d = getindex.(hits_d, 1)
         read_indices_d = getindex.(hits_d, 2)
-        hits_scores_d = vec(scores_d[hits])
+        hits_scores_d = vec(scores_d[hits_d])
         hits_byte_matrix_d = bases_to_bytes((reads_base_matrix_d[read_indices_d, :]))
 
         global_read_indices = read_indices_d .+ global_index_offset
