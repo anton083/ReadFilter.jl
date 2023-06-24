@@ -17,7 +17,7 @@ function find_reads_gpu(
     score_thresholds_d = CuVector(get_score_thresholds(
         subrefs, subref_kmer_matrix_d, pident, k, subref_length, read_length))
 
-    score_threshold = mean_f16(score_thresholds_d)    
+    score_threshold = BinType(mean(Float32, score_thresholds_d))    
 
     reads_kmer_matrix_d = kmer_count.GPU.column_bins(read_chunk_size, k)
     reads_byte_matrix_h = byte_matrix(read_chunk_size, read_length)
