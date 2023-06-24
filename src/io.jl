@@ -77,7 +77,7 @@ function get_indices_of_matches(
     scores_d::CuMatrix{BinType},
     score_thresholds_d::CuVector{BinType},
 )
-    match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0, dims=1)
+    match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0, dims=1) # [1:(read_count - 1) % read_chunk_size + 1]
     indices_of_matches = findall(Vector(vec(match_bools_d)))
     indices_of_matches
 end

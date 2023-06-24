@@ -44,7 +44,7 @@ function find_reads_gpu(
     end
     close(reader)
 
-    flagged_reads#, all_max_scores
+    flagged_reads
 end
 
     

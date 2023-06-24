@@ -51,7 +51,7 @@ function subreferences(
 end
 
 
-function sequence(subref::Subreference)
+function subsequence(subref::Subreference)
     subseq = subref.reference.sequence[subref.subrange]
     subref.revcomp ? reverse_complement!(subseq) : subseq
 end
@@ -69,7 +69,7 @@ function subref_kmer_matrix(
 
     subref_byte_matrix_h = byte_matrix(num_subrefs, subref_length)
     for (j, subref) in enumerate(subrefs)
-        byte_seq = codeunits(String(sequence(subref)))
+        byte_seq = codeunits(String(subsequence(subref)))
         byte_seq_to_byte_matrix!(subref_byte_matrix_h, byte_seq, subref_length, j)
     end
     subref_base_matrix_d = subref_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
