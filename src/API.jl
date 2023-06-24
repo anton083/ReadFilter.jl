@@ -40,25 +40,23 @@ function find_reads_gpu(
         global_index_offset = read_count - num_new_reads
 
         reads_base_matrix_d = bytes_to_bases(CuMatrix{UInt8}(reads_byte_matrix_h))
-        kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d, k)
+        kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d)
         scores_d = subref_kmer_matrix_d * reads_kmer_matrix_d
 
         max_scores_indices_d = CUDA.argmax(scores_d, dims=1)
         max_scores_d = scores_d[max_scores_indices_d]
-        hits = Vector(max_scores_indices_d[findall(s -> s > score_threshold, max_scores_d)])
-        filter!(idx -> idx[2] <= num_new_reads, hits)
+        hits_d = max_scores_indices_d[findall(s -> s > score_threshold, max_scores_d)]
+        hits_d = filter(idx -> idx[2] <= num_new_reads, hits_d)
 
-        subref_indices = getindex.(hits, 1)
-        read_indices = getindex.(hits, 2)
-        hits_scores = Vector(vec(scores_d[hits]))
-        hits_seqs = bases_to_bytes(Matrix{UInt8}(reads_base_matrix_d[read_indices, :]))
+        subref_indices_d = getindex.(hits_d, 1)
+        read_indices_d = getindex.(hits_d, 2)
+        hits_scores_d = vec(scores_d[hits])
+        hits_byte_matrix_d = bases_to_bytes((reads_base_matrix_d[read_indices_d, :]))
+
+        global_read_indices = read_indices_d .+ global_index_offset
 
         write_matched_reads(
-            writer, hits_seqs,
-            read_indices, subref_indices, hits_scores,
-        )
-
-        global_read_indices = read_indices .+ global_index_offset
+            writer, hits_byte_matrix_d, global_read_indices_d, subref_indices_d, hits_scores_d)
 
         append!(flagged_reads, global_read_indices)
 

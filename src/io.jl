@@ -66,10 +66,12 @@ For alphabetical order (both upper/lowercase) use: (byte - 0x01 - (byte % 0x20 =
 """
 @inline bytes_to_bases(byte_matrix::CuMatrix{UInt8}) = byte_matrix .>> 1 .& 0x03
 
-const BYTE_VECTOR = UInt8.(collect("ACTG"))
+const CHAR_VECTOR = collect("ACTG")
+const BYTE_VECTOR = UInt8.(CHAR_VECTOR)
+const BYTE_VECTOR_d = cu(BYTE_VECTOR)
 
-@inline bases_to_bytes(base_matrix::Matrix{UInt8}) = BYTE_VECTOR[base_matrix .+ 0x01]
-
+bases_to_bytes(base_matrix::Matrix{UInt8}) = BYTE_VECTOR[base_matrix .+ 0x01]
+bases_to_bytes(base_matrix_d::CuMatrix{UInt8}) = BYTE_VECTOR_d[base_matrix_d .+ 0x01]
 
 function longest_read_fasta(
     fasta_path::String,
@@ -78,22 +80,13 @@ function longest_read_fasta(
     maximum(seqsize.(read_records(fasta_path, num_records)))
 end
 
-function get_indices_of_matches(
-    scores_d::CuMatrix{BinType},
-    score_thresholds_d::CuVector{BinType},
-)
-    match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0, dims=1) # [1:(read_count - 1) % read_chunk_size + 1]
-    indices_of_matches = findall(Vector(vec(match_bools_d)))
-    indices_of_matches
-end
-
 # TODO: create a template LongDNA{2} of length `read_length` and fill data field with 2-bit bases?
 function write_matched_reads(
     writer::FASTAWriter,
-    seq_matrix::Matrix{UInt8},
-    read_indices::Vector{<:Integer},
-    subref_indices::Vector{<:Integer},
-    match_scores::Vector{BinType},
+    seq_matrix::CuMatrix{UInt8},
+    read_indices::AbstractVector{<:Integer},
+    subref_indices::AbstractVector{<:Integer},
+    match_scores::AbstractVector{BinType},
 )
     for (i, (read_idx, subref_idx, score)) in enumerate(zip(read_indices, subref_indices, match_scores))
         desc = "$read_idx $(subref_idx) $(round(score, digits=1))"

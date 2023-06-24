@@ -1,8 +1,6 @@
 
 module GPU
 
-import ..kmer_count: BinType
-
 using CUDA
 
 # TODO: spaced_kmer_count (11011011 and 1001001001001001 instead of 111111)
@@ -17,8 +15,9 @@ row_bins(N::Integer, k::Integer) = CUDA.zeros(BinType, (N, 4^k))
 The row version of bins has size `N x 4^k` 
 The sequence matrix always has size `N x L`
 """
-function kmer_count_rows!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}, k::Int)
+function kmer_count_rows!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8})
     num_sequences, seq_len = size(sequences)
+    k = trailing_zeros(size(bins, 2))
     CUDA.fill!(bins, zero(BinType))
 
     function kernel(sequences, bins, k, mask, num_sequences, seq_len)
@@ -55,8 +54,9 @@ column_bins(N::Integer, k::Integer) = CUDA.zeros(BinType, (4^k, N))
 The column version of bins has size `4^k x N` 
 The sequence matrix always has size `N x L`
 """
-function kmer_count_columns!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}, k::Int)
+function kmer_count_columns!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8})
     num_sequences, seq_len = size(sequences)
+    k = trailing_zeros(size(bins, 1))
     CUDA.fill!(bins, zero(BinType))
 
     function kernel(sequences, bins, k, mask, num_sequences, seq_len)
