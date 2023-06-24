@@ -66,9 +66,9 @@ For alphabetical order (both upper/lowercase) use: (byte - 0x01 - (byte % 0x20 =
 """
 @inline bytes_to_bases(byte_matrix::CuMatrix{UInt8}) = byte_matrix .>> 1 .& 0x03
 
-const BYTE_VECTOR = CuVector{UInt8}(UInt8.(collect("ACTG")))
+const BYTE_VECTOR = UInt8.(collect("ACTG"))
 
-@inline bases_to_bytes(base_matrix::CuMatrix{UInt8}) = BYTE_VECTOR[base_matrix .+ 0x01]
+@inline bases_to_bytes(base_matrix::Matrix{UInt8}) = BYTE_VECTOR[base_matrix .+ 0x01]
 
 
 function longest_read_fasta(
