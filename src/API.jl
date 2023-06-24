@@ -50,7 +50,7 @@ function find_reads_gpu(
         subref_indices = getindex.(hits, 1)
         read_indices = getindex.(hits, 2)
         hits_scores = Vector(vec(scores_d[hits]))
-        hits_seqs = Matrix{UInt8}(reads_base_matrix_d[read_indices, :])
+        hits_seqs = bases_to_bytes.(Matrix{UInt8}(reads_base_matrix_d[read_indices, :]))
 
         write_matched_reads(
             output_path, hits_seqs,
