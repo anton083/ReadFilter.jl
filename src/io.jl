@@ -91,13 +91,13 @@ end
 function write_matched_reads(
     output_path::String,
     seq_matrix::Matrix{UInt8},
-    read_indices::Vector{UInt8},
-    subref_indices::Vector{UInt8},
-    match_scores::Vector{UInt8},
+    read_indices::Vector{<:Integer},
+    subref_indices::Vector{<:Integer},
+    match_scores::Vector{BinType},
 )
     writer = FASTAWriter(open(output_path, "w"))
     for (read_idx, subref_idx, score) in zip(read_indices, subref_indices, match_scores)
-        desc = "$read_idx $(subref_idx) $(score)"
+        desc = "$read_idx $(subref_idx) $(round(score, digits=1))"
         seq = String(seq_matrix[read_idx, :])
         write(writer, FASTARecord(desc, seq))
     end
