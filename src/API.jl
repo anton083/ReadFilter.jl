@@ -48,7 +48,7 @@ function find_reads_gpu(
     end
     close(reader)
 
-    filter!(idx -> (idx <= read_count), flagged_reads)
+    #filter!(idx -> (idx <= read_count), flagged_reads)
 
     flagged_reads
 end
