@@ -25,6 +25,7 @@ function find_reads_gpu(
     # Pre-allocate scores_d? CUDA.zeros(BinType, (ref_count, read_chunk_size))
     flagged_reads = Int64[]
 
+    writer = FASTAWriter(open(output_path, "w"))
     reader = FASTAReader(open(dataset_path), copy=false)
     read_count = 0
     while !eof(reader)
@@ -53,7 +54,7 @@ function find_reads_gpu(
         hits_seqs = bases_to_bytes(Matrix{UInt8}(reads_base_matrix_d[read_indices, :]))
 
         write_matched_reads(
-            output_path, hits_seqs,
+            writer, hits_seqs,
             read_indices, subref_indices, hits_scores,
         )
 
@@ -65,6 +66,7 @@ function find_reads_gpu(
         println("$n/$read_count ($(round(100*n/read_count, digits=2))%)")
     end
     close(reader)
+    close(writer)
 
     #filter!(idx -> (idx <= read_count), flagged_reads)
 

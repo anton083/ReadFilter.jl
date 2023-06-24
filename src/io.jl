@@ -89,13 +89,12 @@ end
 
 # TODO: create a template LongDNA{2} of length `read_length` and fill data field with 2-bit bases?
 function write_matched_reads(
-    output_path::String,
+    writer::FASTAWriter,
     seq_matrix::Matrix{UInt8},
     read_indices::Vector{<:Integer},
     subref_indices::Vector{<:Integer},
     match_scores::Vector{BinType},
 )
-    writer = FASTAWriter(open(output_path, "w"))
     for (i, (read_idx, subref_idx, score)) in enumerate(zip(read_indices, subref_indices, match_scores))
         desc = "$read_idx $(subref_idx) $(round(score, digits=1))"
         seq = String(seq_matrix[i, :])
