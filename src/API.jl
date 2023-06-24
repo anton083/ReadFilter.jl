@@ -36,25 +36,25 @@ function find_reads_gpu(
             byte_seq_to_byte_matrix!(reads_byte_matrix_h, byte_seq, len, i)
             i == read_chunk_size && break
         end
-        num_new_reads = (read_count - 1) % read_chunk_size + 1
-        global_index_offset = read_count - num_new_reads
+        new_read_count = (read_count - 1) % read_chunk_size + 1
+        global_index_offset = read_count - new_read_count
 
         reads_base_matrix_d = bytes_to_bases(CuMatrix{UInt8}(reads_byte_matrix_h))
         kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d, k)
         scores_d = subref_kmer_matrix_d * reads_kmer_matrix_d
 
-        max_scores_indices_d = CUDA.argmax(scores_d, dims=1)
+        max_scores_indices_d = vec(CUDA.argmax(scores_d, dims=1))
         max_scores_d = scores_d[max_scores_indices_d]
-        hits_d = max_scores_indices_d[findall(s -> s > score_threshold, max_scores_d)]
-        hits_d = filter(idx -> idx[2] <= num_new_reads, hits_d)
+        read_indices_d = findall(s -> s > score_threshold, max_scores_d)
+        hits_indices_d = max_scores_indices_d[read_indices_d]
+        subref_indices_d = getindex.(hits_indices_d, 1)
+        hits_scores_d = max_scores_d[read_indices_d]
 
-        subref_indices_d = getindex.(hits_d, 1)
-        read_indices_d = getindex.(hits_d, 2)
-        hits_scores_d = vec(scores_d[hits_d])
         hits_byte_matrix_d = bases_to_bytes((reads_base_matrix_d[read_indices_d, :]))
 
         global_read_indices_d = read_indices_d .+ global_index_offset
 
+        read_indices_d = filter(idx -> idx <= new_read_count, read_indices_d)
         write_matched_reads(
             writer, hits_byte_matrix_d, global_read_indices_d, subref_indices_d, hits_scores_d)
 
@@ -75,3 +75,4 @@ end
 # TODO: ask Kenta to make some stream that streams reads directly to byte matrix
 # TODO: wrapper for loading a serialized reference matrix
 # TODO: add check for homopolymers
+# TODO: revcomp! if matched to second half of subref vector (revcomps)
