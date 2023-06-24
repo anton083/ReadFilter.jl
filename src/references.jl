@@ -52,6 +52,13 @@ function subreferences(
     subrefs
 end
 
+function subreferences(
+    ref_path::String,
+    sublength::Integer,
+    read_length::Integer,
+)
+    subreferences(references(ref_path), sublength, read_length)
+end
 
 function get_sequence(subref::Subreference)
     subseq = subref.reference.sequence[subref.subrange]
@@ -60,13 +67,9 @@ end
 
 
 function subref_kmer_matrix(
-    ref_path::String,
-    subref_length::Integer,
-    read_length::Integer,
+    subrefs::Vector{Subreference},
     k::Integer,
 )
-    refs = references(ref_path)
-    subrefs = subreferences(refs, subref_length, read_length)
     num_subrefs = length(subrefs)
 
     subref_byte_matrix_h = byte_matrix(num_subrefs, subref_length)
@@ -79,5 +82,5 @@ function subref_kmer_matrix(
     subref_kmer_matrix_d = kmer_count.GPU.row_bins(num_subrefs, k)
     kmer_count.GPU.kmer_count_rows!(subref_kmer_matrix_d, subref_base_matrix_d, k)
 
-    subrefs, subref_kmer_matrix_d
+    subref_kmer_matrix_d
 end

@@ -8,10 +8,13 @@ function find_reads_gpu(
     read_chunk_size::Integer = 100000,
 )
     read_length = longest_read_fasta(dataset_path)
+    subrefs = subreferences(ref_path, subref_length, read_length)
+    subref_length = length(subrefs[1])
 
-    subrefs, subref_kmer_matrix_d = subref_kmer_matrix(ref_path, subref_length, read_length, k)
+    subref_kmer_matrix_d = subref_kmer_matrix(subrefs, k)
 
-    score_thresholds_d = CuVector(get_score_thresholds(subrefs, subref_kmer_matrix_d, pident, k, read_length))
+    score_thresholds_d = CuVector(get_score_thresholds(
+        subrefs, subref_kmer_matrix_d, pident, k, subref_length, read_length))
     
     reads_kmer_matrix_d = kmer_count.GPU.column_bins(read_chunk_size, k)
     reads_byte_matrix_h = byte_matrix(read_chunk_size, read_length)
