@@ -53,7 +53,7 @@ function find_reads_gpu(
         hits_scores_d = vec(scores_d[hits_d])
         hits_byte_matrix_d = bases_to_bytes((reads_base_matrix_d[read_indices_d, :]))
 
-        global_read_indices = read_indices_d .+ global_index_offset
+        global_read_indices_d = read_indices_d .+ global_index_offset
 
         write_matched_reads(
             writer, hits_byte_matrix_d, global_read_indices_d, subref_indices_d, hits_scores_d)
