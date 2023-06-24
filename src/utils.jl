@@ -20,6 +20,7 @@ function get_subranges(full_length::Int, sublength::Int, overlap::Int)
     if subranges[end].stop < full_length
         push!(subranges, (full_length-sublength+1):full_length)
     end
+    
     subranges
 end
 

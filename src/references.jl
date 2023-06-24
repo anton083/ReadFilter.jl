@@ -1,25 +1,39 @@
 
-# subsequences aren't views because we need the data field to be separate
-@inline subsequence(seq::LongDNA{4}, subrange::UnitRange{Int}) = seq[subrange]
+const Subrange = UnitRange{<:Integer}
 
-function subsequences(seq::LongDNA{4}, subranges::Vector{UnitRange{Int}})
-    [subsequence(seq, subrange) for subrange in subranges]
+struct Reference
+    description::AbstractString
+    sequence::LongDNA{4}
+    length::Integer
+    index::Integer
 end
 
-function get_refs(ref_path::String, num_refs::Union{Integer, Float64} = Inf)
-    degap.(sequence.(LongDNA{4}, read_records(ref_path, num_refs)))
+function references(path::String, num_refs::Union{Integer, Float64} = Inf)
+    records = read_records(path, num_refs)
+    descs = description.(records)
+    seqs = degap.(sequence.(LongDNA{4}, records))
+    [Reference(desc, seq, length(seq), index) for (index, (desc, seq)) in enumerate(zip(descs, seqs))]
 end
 
-"""
-Takes a vector of reference sequences and splits them into equally-sized chunks (subreferences).
-"""
-function get_subrefs(
-    refs::Vector{LongDNA{4}},
+
+struct Subreference
+    reference::Reference
+    subrange::Subrange
+    revcomp::Bool
+end
+
+function subreferences(ref::Reference, subranges::Vector{<:Subrange})
+    [Subreference(ref, subrange, false) for subrange in subranges]
+end
+
+revcomp(subref::Subreference) = Subreference(subref.reference, subref.subrange, !subref.revcomp)
+
+function subreferences(
+    refs::Vector{Reference},
     sublength::Integer,
     read_length::Integer,
 )
     ref_lengths = length.(refs)
-
     smallest_length = minimum(ref_lengths)
     if smallest_length < sublength
         @warn """Reference sequence shorter than `sublength` found. Switching to smaller sublength, $smallest_length..."*
@@ -27,13 +41,19 @@ function get_subrefs(
         sublength = smallest_length
     end
 
-    subranges = get_subranges.(ref_lengths, sublength, read_length)
-    subrefs = reduce(vcat, subsequences.(refs, subranges))
+    subranges_vec = get_subranges.(ref_lengths, sublength, read_length)
+    subrefs = reduce(vcat, [subreferences(ref, subranges) for (ref, subranges) in zip(refs, subranges_vec)])
 
     # use divrem(i, N) to get (is_revcomp, j)
-    append!(subrefs, reverse_complement.(subrefs))
+    append!(subrefs, revcomp.(subrefs))
 
     subrefs
+end
+
+
+function sequence(subref::Subreference)
+    subseq = subref.reference.sequence[subref.subrange]
+    subref.revcomp ? reverse_complement!(subseq) : subseq
 end
 
 
@@ -43,13 +63,13 @@ function subref_kmer_matrix(
     read_length::Integer,
     k::Integer,
 )
-    refs = get_refs(ref_path)
-    subrefs = get_subrefs(refs, subref_length, read_length)
+    refs = references(ref_path)
+    subrefs = subreferences(refs, subref_length, read_length)
     num_subrefs = length(subrefs)
 
     subref_byte_matrix_h = byte_matrix(num_subrefs, subref_length)
     for (j, subref) in enumerate(subrefs)
-        byte_seq = codeunits(String(subref))
+        byte_seq = codeunits(String(sequence(subref)))
         byte_seq_to_byte_matrix!(subref_byte_matrix_h, byte_seq, subref_length, j)
     end
     subref_base_matrix_d = subref_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
