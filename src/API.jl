@@ -11,7 +11,7 @@ function find_reads_gpu(
     subrefs = subreferences(ref_path, subref_length, read_length)
     subref_length = length(subrefs[1])
 
-    subref_kmer_matrix_d = subref_kmer_matrix(subrefs, k)
+    subref_kmer_matrix_d = subref_kmer_matrix(subrefs, subref_length, k)
 
     score_thresholds_d = CuVector(get_score_thresholds(
         subrefs, subref_kmer_matrix_d, pident, k, subref_length, read_length))

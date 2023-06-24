@@ -70,6 +70,7 @@ end
 
 function subref_kmer_matrix(
     subrefs::Vector{Subreference},
+    subref_length::Integer,
     k::Integer,
 )
     num_subrefs = length(subrefs)
