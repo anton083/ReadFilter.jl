@@ -18,7 +18,7 @@ function find_reads_gpu(
         subrefs, subref_kmer_matrix_d, pident, k, subref_length, read_length))
 
     score_threshold = mean(score_thresholds_d)    
-    
+    println(score_threshold)
     reads_kmer_matrix_d = kmer_count.GPU.column_bins(read_chunk_size, k)
     reads_byte_matrix_h = byte_matrix(read_chunk_size, read_length)
 
@@ -46,7 +46,6 @@ function find_reads_gpu(
         max_scores_d = scores_d[max_scores_indices_d]
         hits = Vector(max_scores_indices_d[findall(s -> s > score_threshold, max_scores_d)])
         filter!(idx -> idx[2] <= num_new_reads, hits)
-        println(max_scores_d[1:100])
 
         subref_indices = getindex.(hits, 1)
         read_indices = getindex.(hits, 2)
