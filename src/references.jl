@@ -80,7 +80,7 @@ function subref_kmer_matrix(
         byte_seq = codeunits(String(get_sequence(subref)))
         byte_seq_to_byte_matrix!(subref_byte_matrix_h, byte_seq, subref_length, j)
     end
-    subref_base_matrix_d = subref_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
+    subref_base_matrix_d = bytes_to_bases(CuMatrix{UInt8}(subref_byte_matrix_h))
 
     subref_kmer_matrix_d = kmer_count.GPU.row_bins(num_subrefs, k)
     kmer_count.GPU.kmer_count_rows!(subref_kmer_matrix_d, subref_base_matrix_d, k)
