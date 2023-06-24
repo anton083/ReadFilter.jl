@@ -100,5 +100,4 @@ function write_matched_reads(
         seq = String(seq_matrix[i, :])
         write(writer, FASTARecord(desc, seq))
     end
-    close(writer)
 end
