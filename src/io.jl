@@ -66,6 +66,11 @@ For alphabetical order (both upper/lowercase) use: (byte - 0x01 - (byte % 0x20 =
 """
 @inline bytes_to_bases(byte_matrix::CuMatrix{UInt8}) = byte_matrix .>> 1 .& 0x03
 
+const BYTE_VECTOR = CuVector{UInt8}(UInt8.(collect("ACTG")))
+
+@inline bases_to_bytes(base_matrix::CuMatrix{UInt8}) = BYTE_VECTOR[base_matrix .+ 0x01]
+
+
 function longest_read_fasta(
     fasta_path::String,
     num_records::Int = 10,
@@ -80,4 +85,21 @@ function get_indices_of_matches(
     match_bools_d = CUDA.reduce(max, scores_d .- score_thresholds_d .> 0, dims=1) # [1:(read_count - 1) % read_chunk_size + 1]
     indices_of_matches = findall(Vector(vec(match_bools_d)))
     indices_of_matches
+end
+
+# TODO: create a template LongDNA{2} of length `read_length` and fill data field with 2-bit bases?
+function write_matched_reads(
+    output_path::String,
+    seq_matrix::Matrix{UInt8},
+    read_indices::Vector{UInt8},
+    subref_indices::Vector{UInt8},
+    match_scores::Vector{UInt8},
+)
+    writer = FASTAWriter(open(output_path, "w"))
+    for (read_idx, subref_idx, score) in zip(read_indices, subref_indices, match_scores)
+        desc = "$read_idx $(subref_idx) $(score)"
+        seq = String(seq_matrix[read_idx, :])
+        write(writer, FASTARecord(desc, seq))
+    end
+    close(writer)
 end

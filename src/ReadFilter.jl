@@ -19,6 +19,7 @@ module ReadFilter
     include("simulation.jl")
     include("API.jl")
 
-    export find_reads_gpu, filter_fasta
+    export find_reads_gpu, filter_fasta,
+        get_subranges
 
 end
