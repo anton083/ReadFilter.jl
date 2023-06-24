@@ -37,7 +37,8 @@ function find_reads_gpu(
         scores_d = subref_kmer_matrix_d * reads_kmer_matrix_d
 
         indices_of_matches = get_indices_of_matches(scores_d, score_thresholds_d)
-        indices_of_matches .+= read_count - read_count % read_chunk_size
+        indices_of_matches .+= read_count - ((read_count - 1) % read_chunk_size + 1)
+
         # TODO: add check for homopolymers
 
         append!(flagged_reads, indices_of_matches)
