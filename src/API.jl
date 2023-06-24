@@ -40,7 +40,7 @@ function find_reads_gpu(
         global_index_offset = read_count - num_new_reads
 
         reads_base_matrix_d = bytes_to_bases(CuMatrix{UInt8}(reads_byte_matrix_h))
-        kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d)
+        kmer_count.GPU.kmer_count_columns!(reads_kmer_matrix_d, reads_base_matrix_d, k)
         scores_d = subref_kmer_matrix_d * reads_kmer_matrix_d
 
         max_scores_indices_d = CUDA.argmax(scores_d, dims=1)

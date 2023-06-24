@@ -83,7 +83,7 @@ function subref_kmer_matrix(
     subref_base_matrix_d = subref_byte_matrix_h |> CuMatrix{UInt8} |> bytes_to_bases
 
     subref_kmer_matrix_d = kmer_count.GPU.row_bins(num_subrefs, k)
-    kmer_count.GPU.kmer_count_rows!(subref_kmer_matrix_d, subref_base_matrix_d)
+    kmer_count.GPU.kmer_count_rows!(subref_kmer_matrix_d, subref_base_matrix_d, k)
 
     subref_kmer_matrix_d
 end
