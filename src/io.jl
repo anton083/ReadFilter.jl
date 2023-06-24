@@ -83,7 +83,7 @@ end
 # TODO: create a template LongDNA{2} of length `read_length` and fill data field with 2-bit bases?
 function write_matched_reads(
     writer::FASTAWriter,
-    read_count::Integer
+    read_count::Integer,
     seq_matrix::CuMatrix{UInt8},
     read_indices::AbstractVector{<:Integer},
     subref_indices::AbstractVector{<:Integer},
