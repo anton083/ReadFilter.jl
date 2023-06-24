@@ -96,9 +96,9 @@ function write_matched_reads(
     match_scores::Vector{BinType},
 )
     writer = FASTAWriter(open(output_path, "w"))
-    for (read_idx, subref_idx, score) in zip(read_indices, subref_indices, match_scores)
+    for (i, (read_idx, subref_idx, score)) in enumerate(zip(read_indices, subref_indices, match_scores))
         desc = "$read_idx $(subref_idx) $(round(score, digits=1))"
-        seq = String(seq_matrix[read_idx, :])
+        seq = String(seq_matrix[i, :])
         write(writer, FASTARecord(desc, seq))
     end
     close(writer)
