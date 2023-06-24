@@ -8,6 +8,8 @@ struct Reference
     index::Integer
 end
 
+@inline Base.length(ref::Reference) = ref.length
+
 function references(path::String, num_refs::Union{Integer, Float64} = Inf)
     records = read_records(path, num_refs)
     descs = description.(records)
@@ -15,14 +17,14 @@ function references(path::String, num_refs::Union{Integer, Float64} = Inf)
     [Reference(desc, seq, length(seq), index) for (index, (desc, seq)) in enumerate(zip(descs, seqs))]
 end
 
-@inline Base.length(ref::Reference) = ref.length
-
 
 struct Subreference
     reference::Reference
     subrange::Subrange
     revcomp::Bool
 end
+
+@inline Base.length(subref::Subreference) = length(subref.subrange)
 
 function subreferences(ref::Reference, subranges::Vector{<:Subrange})
     [Subreference(ref, subrange, false) for subrange in subranges]
