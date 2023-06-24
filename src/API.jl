@@ -52,7 +52,7 @@ function find_reads_gpu(
         hits_scores = Vector(vec(scores_d[hits]))
 
         write_matched_reads(
-            output_path, reads_byte_matrix_h,
+            output_path, Matrix{UInt8}(bases_to_bytes.(reads_base_matrix_d)),
             read_indices, subref_indices, hits_scores,
         )
 
