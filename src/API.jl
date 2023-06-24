@@ -56,7 +56,7 @@ function find_reads_gpu(
             read_indices, subref_indices, hits_scores,
         )
 
-        global_read_indices .+= global_index_offset
+        global_read_indices = read_indices .+ global_index_offset
 
         append!(flagged_reads, global_read_indices)
 
