@@ -15,7 +15,7 @@ function references(path::String, num_refs::Union{Integer, Float64} = Inf)
     [Reference(desc, seq, length(seq), index) for (index, (desc, seq)) in enumerate(zip(descs, seqs))]
 end
 
-@inline length(ref::Reference) = ref.length
+@inline Base.length(ref::Reference) = ref.length
 
 
 struct Subreference
