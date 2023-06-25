@@ -48,7 +48,7 @@ function find_reads_gpu(
         read_indices_d = findall(s -> s > score_threshold, max_scores_d)
         read_indices_trimmed_d = filter(idx -> idx <= num_new_reads, read_indices_d)
 
-        n = length(read_indices_trimmed_d)
+        n = length(flagged_reads) + length(read_indices_trimmed_d)
         println("$n/$read_count ($(round(100*n/read_count, digits=2))%)")
 
         if isempty(read_indices_trimmed_d) continue end
