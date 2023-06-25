@@ -11,7 +11,7 @@ function recreate_reads(
     indices::Vector{Int},
 )
     n = length(indices)
-    reads = Vector{Match}(undef, n)
+    reads = Vector{Read}(undef, n)
     rows = eachrow(reads_byte_matrix)
     for (i, (row, idx)) in enumerate(zip(rows, indices))
         seq = LongDNA{4}(String(row))
