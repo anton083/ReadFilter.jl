@@ -41,7 +41,7 @@ end
 
 function SWG_score(seq1::LongDNA{4}, seq2::LongDNA{4}, gap_open::Int, gap_extend::Int)
     m, n = length(seq1), length(seq2)
-    params = AlignParams(length(m), length(n), gap_open, gap_extend)
+    params = AlignParams(m, n, gap_open, gap_extend)
     SWG_score(seq1, seq2, params)
 end
 
