@@ -49,3 +49,20 @@ function assign_alignment_scores(matches::Vector{Match})
         match.alignment_score = SWG_score(match.read.seq, get_sequence(match.subref), params)
     end
 end
+
+# TODO: keep track of subref index. match.subref_idx field would be easiest to implement
+@inline function write_match(writer::FASTAWriter, match::Match)
+    read_idx = match.read.idx
+    ref_index = match.subref
+    score1 = round(match.kmer_count_score, digits=1)
+    score2 = round(match.alignment_score, digits=1)
+    desc = "$read_idx r$(ref_index) $(score1):$(score2)"
+    write(writer, FASTARecord(desc, match.read.seq))
+end
+
+# TODO: create a template LongDNA{2} of length `read_length` and fill data field with 2-bit bases?
+function write_matches(writer::FASTAWriter, matches::Vector{Match})
+    for match in matches
+        write_match(writer, match)
+    end
+end
