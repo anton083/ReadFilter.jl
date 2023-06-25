@@ -4,7 +4,7 @@ const AlignScoreType = Float16
 const MatrixType = Matrix{AlignScoreType}
 const NegInf = AlignScoreType(-Inf)
 
-struct Parameters
+struct AlignParams
     D::MatrixType
     P::MatrixType
     Q::MatrixType
@@ -12,7 +12,7 @@ struct Parameters
     gap_extend::Int
 end
 
-function reset_matrices!(params::Parameters)
+function reset_matrices!(params::AlignParams)
     fill!(params.D, NegInf)
     fill!(params.P, NegInf)
     fill!(params.Q, NegInf)
@@ -28,8 +28,8 @@ function reset_matrices!(params::Parameters)
     params
 end
 
-function Parameters(m::Int, n::Int, gap_open::Int, gap_extend::Int)
-    params = Parameters(
+function AlignParams(m::Int, n::Int, gap_open::Int, gap_extend::Int)
+    params = AlignParams(
         fill(NegInf, (m+1, n+1)),
         fill(NegInf, (m+1, n+1)),
         fill(NegInf, (m+1, n+1)),
@@ -41,11 +41,11 @@ end
 
 function SWG_score(seq1::LongDNA, seq2::LongDNA, gap_open::Int, gap_extend::Int)
     m, n = length(seq1), length(seq2)
-    params = Parameters(length(m), length(n), gap_open, gap_extend)
+    params = AlignParams(length(m), length(n), gap_open, gap_extend)
     SWG_score(params, seq1, seq2, gap_open, gap_extend)
 end
 
-function SWG_score(params::Parameters, seq1::LongDNA, seq2::LongDNA, gap_open::Int, gap_extend::Int)
+function SWG_score(params::AlignParams, seq1::LongDNA, seq2::LongDNA, gap_open::Int, gap_extend::Int)
     m, n = length(seq1), length(seq2)
     @assert size(params.D) == (m+1, n+1)
     reset_matrices!(params)
