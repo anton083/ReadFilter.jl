@@ -35,7 +35,7 @@ function get_matches(
 )
     n = length(reads)
     matches = Vector{Match}(undef, n)
-    for (i, read, subref, score) in enumerate(zip(reads, subrefs, kmer_count_scores))
+    for (i, (read, subref, score)) in enumerate(zip(reads, subrefs, kmer_count_scores))
         matches[i] = Match(read, subref, score, missing)
     end
     matches
