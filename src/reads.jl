@@ -21,7 +21,7 @@ function recreate_reads(
     reads
 end
 
-struct Match
+mutable struct Match
     read::Read
     subref::Subreference
     kmer_count_score::BinType
