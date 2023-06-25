@@ -6,10 +6,10 @@ function get_score_thresholds(
     subrefs::Vector{Subreference},
     subref_kmer_matrix_d::CuMatrix{BinType},
     pident_threshold::Float64,
-    k::Integer,
-    subref_length::Integer,
-    read_length::Integer,
-    samples_per_subref::Integer = 100,
+    k::Int,
+    subref_length::Int,
+    read_length::Int,
+    samples_per_subref::Int = 100,
 )
     mut_count = trunc(Int, (1 - pident_threshold) * read_length)
 

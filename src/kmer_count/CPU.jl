@@ -1,9 +1,9 @@
 
 module CPU
 
-@inline kmer_count(k::Integer) = zeros(UInt16, 1 << 2k)
+@inline kmer_count(k::Int) = zeros(UInt16, 1 << 2k)
 
-function kmer_count(seq::LongDNA{2}, k::Integer)
+function kmer_count(seq::LongDNA{2}, k::Int)
     bins = kmer_count(k)
     len = length(seq)
     mask = UInt(1 << 2k - 1)
@@ -20,7 +20,7 @@ function kmer_count(seq::LongDNA{2}, k::Integer)
     bins
 end
 
-function kmer_count(seq::LongDNA{4}, k::Integer)
+function kmer_count(seq::LongDNA{4}, k::Int)
     bins = kmer_count(k)
     len = length(seq)
     mask = UInt(1 << 2k - 1)
@@ -37,7 +37,7 @@ function kmer_count(seq::LongDNA{4}, k::Integer)
     bins
 end
 
-function kmer_count!(bins::Vector{UInt16}, seq::LongDNA{2}, k::Integer)
+function kmer_count!(bins::Vector{UInt16}, seq::LongDNA{2}, k::Int)
     len = length(seq)
     mask = UInt(1 << 2k - 1)
     kmer = UInt(0)
@@ -53,7 +53,7 @@ function kmer_count!(bins::Vector{UInt16}, seq::LongDNA{2}, k::Integer)
     bins
 end
 
-function kmer_count!(bins::Vector{UInt16}, seq::LongDNA{4}, k::Integer)
+function kmer_count!(bins::Vector{UInt16}, seq::LongDNA{4}, k::Int)
     len = length(seq)
     mask = UInt(1 << 2k - 1)
     kmer = UInt(0)
@@ -70,7 +70,7 @@ function kmer_count!(bins::Vector{UInt16}, seq::LongDNA{4}, k::Integer)
 end
 
 #=
-function reference_kmer_matrix(refs::Vector{LongDNA{4}}, k::Integer)
+function reference_kmer_matrix(refs::Vector{LongDNA{4}}, k::Int)
     N = lastindex(refs)
     bin_matrix = zeros(UInt16, (N, 4^k))
     mask = UInt(4^k - 1)
@@ -90,7 +90,7 @@ function reference_kmer_matrix(refs::Vector{LongDNA{4}}, k::Integer)
     bin_matrix
 end
 
-function reference_kmer_matrix!(bin_matrix::Matrix{UInt16}, refs::Vector{LongDNA{4}}, k::Integer)
+function reference_kmer_matrix!(bin_matrix::Matrix{UInt16}, refs::Vector{LongDNA{4}}, k::Int)
     fill!(bin_matrix, zero(eltype(bin_matrix)))
     mask = UInt(4^k - 1)
     for (row, seq) in enumerate(refs)
@@ -110,7 +110,7 @@ function reference_kmer_matrix!(bin_matrix::Matrix{UInt16}, refs::Vector{LongDNA
 end
 
 
-function read_kmer_matrix(reads::Vector{LongDNA{4}}, k::Integer)
+function read_kmer_matrix(reads::Vector{LongDNA{4}}, k::Int)
     N = lastindex(reads)
     bin_matrix = zeros(UInt16, (4^k, N))
     mask = UInt(4^k - 1)
@@ -130,7 +130,7 @@ function read_kmer_matrix(reads::Vector{LongDNA{4}}, k::Integer)
     bin_matrix
 end
 
-function read_kmer_matrix!(bin_matrix::Matrix{UInt16}, reads::Vector{LongDNA{4}}, k::Integer)
+function read_kmer_matrix!(bin_matrix::Matrix{UInt16}, reads::Vector{LongDNA{4}}, k::Int)
     fill!(bin_matrix, zero(eltype(bin_matrix)))
     mask = UInt(4^k - 1)
     for (column, seq) in enumerate(reads)

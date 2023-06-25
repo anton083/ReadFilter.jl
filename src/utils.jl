@@ -24,7 +24,7 @@ function get_subranges(full_length::Int, sublength::Int, overlap::Int)
     subranges
 end
 
-function random_subrange(L::Integer, R::Integer)
+function random_subrange(L::Int, R::Int)
     start = rand(1:L-R+1)
     start:start+R-1
 end

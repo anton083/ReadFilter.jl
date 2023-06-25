@@ -1,5 +1,5 @@
 
-function read_records(fasta_path::String, num_records::Union{Integer, Float64} = Inf)
+function read_records(fasta_path::String, num_records::Union{Int, Float64} = Inf)
     100000 < num_records < Inf && @warn "We might be loading a shit ton of records into memory"
     records = FASTARecord[]
     FASTAReader(open(fasta_path), copy=true) do reader
@@ -32,7 +32,7 @@ function filter_fasta(
     close(writer)
 end
 
-byte_matrix(num_seqs::Integer, seq_length::Integer) = zeros(UInt8, (num_seqs, seq_length))
+byte_matrix(num_seqs::Int, seq_length::Int) = zeros(UInt8, (num_seqs, seq_length))
 
 """
 Does the bare minimum that needs to be done to the sequences before moving them to GPU.
@@ -50,8 +50,8 @@ const CodeUnitsStringView = Base.CodeUnits{UInt8, String}
 function byte_seq_to_byte_matrix!(
     byte_matrix::Matrix{UInt8},
     byte_seq::CodeUnitsStringView,
-    len::Integer,
-    i::Integer,
+    len::Int,
+    i::Int,
 )
     new_len = min(len, size(byte_matrix, 2))
     byte_matrix[i, 1:new_len] = view(byte_seq, 1:new_len)
@@ -84,8 +84,8 @@ end
 function write_matched_reads(
     writer::FASTAWriter,
     seq_matrix::Matrix{UInt8},
-    read_indices::AbstractVector{<:Integer},
-    subref_indices::AbstractVector{<:Integer},
+    read_indices::AbstractVector{Int},
+    subref_indices::AbstractVector{Int},
     match_scores::AbstractVector{BinType},
 )
     rows = eachrow(seq_matrix)

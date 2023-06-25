@@ -3,10 +3,11 @@ function find_reads_gpu(
     ref_path::String,
     dataset_path::String,
     pident::Float64 = 0.9;
-    k::Integer = 6,
-    subref_length::Integer = 1024,
-    read_chunk_size::Integer = 100000,
-    output_path::String = "filtered.fasta"
+    k::Int = 6,
+    subref_length::Int = 1024,
+    read_chunk_size::Int = 100000,
+    output_path::String = "filtered.fasta",
+    check_alignments::Bool = false,
 )
     read_length = longest_read_fasta(dataset_path)
     subrefs = subreferences(ref_path, subref_length, read_length)
@@ -29,6 +30,9 @@ function find_reads_gpu(
     reader = FASTAReader(open(dataset_path), copy=false)
     read_count = 0
     while !eof(reader)
+        n = length(flagged_reads)
+        println("$n/$read_count ($(round(100*n/read_count, digits=2))%)")
+
         for (i, record) in enumerate(reader)
             read_count += 1
             byte_seq = codeunits(sequence(String, record))
@@ -46,26 +50,29 @@ function find_reads_gpu(
         max_scores_indices_d = vec(CUDA.argmax(scores_d, dims=1))
         max_scores_d = scores_d[max_scores_indices_d]
         read_indices_d = findall(s -> s > score_threshold, max_scores_d)
-        read_indices_trimmed_d = filter(idx -> idx <= num_new_reads, read_indices_d)
+        read_indices_d = filter(idx -> idx <= num_new_reads, read_indices_d) # can't `filter!` CuArrays
 
-        n = length(flagged_reads) + length(read_indices_trimmed_d)
-        println("$n/$read_count ($(round(100*n/read_count, digits=2))%)")
+        isempty(read_indices_d) && continue
 
-        if isempty(read_indices_trimmed_d) continue end
+        # Cartesian coordinates for score matrix
+        match_cart_inds_d = max_scores_indices_d[read_indices_d]
 
-        hits_indices_d = max_scores_indices_d[read_indices_d]
-        subref_indices_d = getindex.(hits_indices_d, 1)
-        hits_scores_d = max_scores_d[read_indices_d]
+        matched_reads_byte_matrix = Matrix{UInt8}(bases_to_bytes((reads_base_matrix_d[read_indices_d, :])))
 
-        hits_byte_matrix_h = Matrix{UInt8}(bases_to_bytes((reads_base_matrix_d[read_indices_trimmed_d, :])))
+        global_read_indices = Vector(read_indices_d .+ global_index_offset)
+        subref_indices = Vector(getindex.(match_cart_inds_d, 1))
+        matched_subrefs = subrefs[subref_indices]
+        match_scores = Vector(max_scores_d[read_indices_d])
 
-        global_read_indices_d = read_indices_trimmed_d .+ global_index_offset
+        reads = recreate_reads(matched_reads_byte_matrix, global_read_indices)
+        read_matches = get_matches(reads, matched_subrefs, match_scores)
 
-        write_matched_reads(
-            writer, hits_byte_matrix_h,
-            Vector(global_read_indices_d), Vector(subref_indices_d), Vector(hits_scores_d))
+        if check_alignments
+            assign_alignment_scores(read_matches)
+            filter!(rm -> rm.alignment_score > read_length / 2, read_matches)
+        end
 
-        append!(flagged_reads, Vector(global_read_indices_d))
+        append!(flagged_reads, global_read_indices)
     end
     close(reader)
     close(writer)
@@ -75,8 +82,9 @@ function find_reads_gpu(
     flagged_reads
 end
 
-    
+
 # TODO: ask Kenta to make some stream that streams reads directly to byte matrix
 # TODO: wrapper for loading a serialized reference matrix
 # TODO: add check for homopolymers
 # TODO: revcomp! if matched to second half of subref vector (revcomps)
+# TODO: don't count reads until after alignment filtering?

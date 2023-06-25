@@ -15,6 +15,7 @@ module ReadFilter
     include("io.jl")
     include("kmer_count/kmer_count.jl")
     include("references.jl")
+    include("reads.jl")
     include("mutation.jl")
     include("simulation.jl")
     include("API.jl")

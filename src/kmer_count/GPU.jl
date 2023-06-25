@@ -11,7 +11,7 @@ export
     row_bins, kmer_count_rows!,
     column_bins, kmer_count_columns!
 
-row_bins(N::Integer, k::Integer) = CUDA.zeros(BinType, (N, 4^k))
+row_bins(N::Int, k::Int) = CUDA.zeros(BinType, (N, 4^k))
 
 """
 The row version of bins has size `N x 4^k` 
@@ -49,7 +49,7 @@ function kmer_count_rows!(bins::CuMatrix{BinType}, sequences::CuMatrix{UInt8}, k
 end
 
 
-column_bins(N::Integer, k::Integer) = CUDA.zeros(BinType, (4^k, N))
+column_bins(N::Int, k::Int) = CUDA.zeros(BinType, (4^k, N))
 
 """
 The column version of bins has size `4^k x N` 

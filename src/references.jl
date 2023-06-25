@@ -1,16 +1,16 @@
 
-const Subrange = UnitRange{<:Integer}
+const Subrange = UnitRange{Int}
 
 struct Reference
     description::AbstractString
-    sequence::LongDNA{4}
-    length::Integer
-    index::Integer
+    seq::LongDNA{4}
+    len::Int
+    idx::Int
 end
 
-@inline Base.length(ref::Reference) = ref.length
+@inline Base.length(ref::Reference) = ref.len
 
-function references(path::String, num_refs::Union{Integer, Float64} = Inf)
+function references(path::String, num_refs::Union{Int, Float64} = Inf)
     records = read_records(path, num_refs)
     descs = description.(records)
     seqs = degap.(sequence.(LongDNA{4}, records))
@@ -26,16 +26,21 @@ end
 
 @inline Base.length(subref::Subreference) = length(subref.subrange)
 
-function subreferences(ref::Reference, subranges::Vector{<:Subrange})
-    [Subreference(ref, subrange, false) for subrange in subranges]
+function get_sequence(subref::Subreference)
+    seq = subref.reference.seq[subref.subrange]
+    subref.revcomp ? reverse_complement!(seq) : seq
 end
 
 revcomp(subref::Subreference) = Subreference(subref.reference, subref.subrange, !subref.revcomp)
 
+function subreferences(ref::Reference, subranges::Vector{<:Subrange})
+    [Subreference(ref, subrange, false) for subrange in subranges]
+end
+
 function subreferences(
     refs::Vector{Reference},
-    sublength::Integer,
-    read_length::Integer,
+    sublength::Int,
+    read_length::Int,
 )
     ref_lengths = length.(refs)
     smallest_length = minimum(ref_lengths)
@@ -56,22 +61,17 @@ end
 
 function subreferences(
     ref_path::String,
-    sublength::Integer,
-    read_length::Integer,
+    sublength::Int,
+    read_length::Int,
 )
     subreferences(references(ref_path), sublength, read_length)
-end
-
-function get_sequence(subref::Subreference)
-    subseq = subref.reference.sequence[subref.subrange]
-    subref.revcomp ? reverse_complement!(subseq) : subseq
 end
 
 
 function subref_kmer_matrix(
     subrefs::Vector{Subreference},
-    subref_length::Integer,
-    k::Integer,
+    subref_length::Int,
+    k::Int,
 )
     num_subrefs = length(subrefs)
 
