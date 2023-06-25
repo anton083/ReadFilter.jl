@@ -18,10 +18,10 @@ function reset_matrices!(params::AlignParams)
     fill!(params.Q, NegInf)
 
     params.D[1, 1] = 0
-    for i in 2:(m+1)
+    for i in 2:size(params.D, 1)
         params.D[i, 1] = params.P[i, 1] = -params.gap_open - (i - 2) * params.gap_extend
     end
-    for j in 2:(n+1)
+    for j in 2:size(params.D, 2)
         D[1, j] = Q[1, j] = -params.gap_open - (j - 2) * params.gap_extend
     end
 
