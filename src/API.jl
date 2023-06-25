@@ -50,7 +50,9 @@ function find_reads_gpu(
         max_scores_indices_d = vec(CUDA.argmax(scores_d, dims=1))
         max_scores_d = scores_d[max_scores_indices_d]
         read_indices_d = findall(s -> s > score_threshold, max_scores_d)
-        read_indices_d = filter(idx -> idx <= num_new_reads, read_indices_d) # can't `filter!` CuArrays
+        if !isempty(read_indices_d)
+            read_indices_d = filter(idx -> idx <= num_new_reads, read_indices_d)
+        end
 
         isempty(read_indices_d) && continue
 
