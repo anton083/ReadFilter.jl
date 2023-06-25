@@ -46,6 +46,6 @@ function assign_alignment_scores(matches::Vector{Match})
     params = AlignParams(length(match.read), length(match.subref), 1, 1)
 
     for match in matches
-        match.alignment_score = SWG_score(params, match.read.seq, get_sequence(match.subref))
+        match.alignment_score = SWG_score(match.read.seq, get_sequence(match.subref), params)
     end
 end
