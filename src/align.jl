@@ -39,13 +39,13 @@ function AlignParams(m::Int, n::Int, gap_open::Int, gap_extend::Int)
     reset_matrices!(params)
 end
 
-function SWG_score(seq1::LongDNA, seq2::LongDNA, gap_open::Int, gap_extend::Int)
+function SWG_score(seq1::LongDNA{4}, seq2::LongDNA{4}, gap_open::Int, gap_extend::Int)
     m, n = length(seq1), length(seq2)
     params = AlignParams(length(m), length(n), gap_open, gap_extend)
     SWG_score(params, seq1, seq2, gap_open, gap_extend)
 end
 
-function SWG_score(params::AlignParams, seq1::LongDNA, seq2::LongDNA, gap_open::Int, gap_extend::Int)
+function SWG_score(params::AlignParams, seq1::LongDNA{4}, seq2::LongDNA{4}, gap_open::Int, gap_extend::Int)
     m, n = length(seq1), length(seq2)
     @assert size(params.D) == (m+1, n+1)
     reset_matrices!(params)
