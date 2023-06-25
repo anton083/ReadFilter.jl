@@ -2,7 +2,7 @@
 
 const AlignScoreType = Float16
 const MatrixType = Matrix{AlignScoreType}
-const NegInf = SWG_AlignScoreType(-Inf)
+const NegInf = AlignScoreType(-Inf)
 
 struct Parameters
     D::SWG_MatrixType
