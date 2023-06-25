@@ -71,7 +71,9 @@ function find_reads_gpu(
 
         if check_alignments
             assign_alignment_scores(read_matches)
+            println(mean([rm.alignment_score for rm in read_matches]))
             filter!(rm -> rm.alignment_score > read_length / 2, read_matches)
+            println(mean([rm.alignment_score for rm in read_matches]))
         end
 
         write_matches(writer, read_matches)
