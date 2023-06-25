@@ -46,26 +46,24 @@ function find_reads_gpu(
         max_scores_indices_d = vec(CUDA.argmax(scores_d, dims=1))
         max_scores_d = scores_d[max_scores_indices_d]
         read_indices_d = findall(s -> s > score_threshold, max_scores_d)
+        read_indices_trimmed_d = filter(idx -> idx <= num_new_reads, read_indices_d)
 
-        if length(read_indices_d) > 0
-            hits_indices_d = max_scores_indices_d[read_indices_d]
-            subref_indices_d = getindex.(hits_indices_d, 1)
-            hits_scores_d = max_scores_d[read_indices_d]
-
-            read_indices_d_trimmed = filter(idx -> idx <= num_new_reads, read_indices_d)
-
-            hits_byte_matrix_d = bases_to_bytes((reads_base_matrix_d[read_indices_d_trimmed, :]))
-
-            global_read_indices_d = read_indices_d_trimmed .+ global_index_offset
-
-            write_matched_reads(
-                writer, hits_byte_matrix_d, global_read_indices_d, subref_indices_d, hits_scores_d)
-
-            append!(flagged_reads, Vector(global_read_indices_d))
-        end
-
-        n = length(flagged_reads)
+        n = length(read_indices_trimmed_d)
         println("$n/$read_count ($(round(100*n/read_count, digits=2))%)")
+
+        if isempty(read_indices_trimmed_d) continue end
+
+        hits_indices_d = max_scores_indices_d[read_indices_d]
+        subref_indices_d = getindex.(hits_indices_d, 1)
+        hits_scores_d = max_scores_d[read_indices_d]
+
+        hits_byte_matrix_h = CuMatrix{UInt8}(bases_to_bytes((reads_base_matrix_d[read_indices_trimmed_d, :])))
+
+        global_read_indices_d = read_indices_trimmed_d .+ global_index_offset
+
+        write_matched_reads(writer, hits_byte_matrix_h, global_read_indices_d, subref_indices_d, hits_scores_d)
+
+        append!(flagged_reads, Vector(global_read_indices_d))
     end
     close(reader)
     close(writer)
