@@ -47,7 +47,7 @@ function assign_alignment_scores(matches::Vector{Match})
 
     for match in matches
         match.alignment_score = SWG_score(match.read.seq, get_sequence(match.subref), params)
-        print("$(match.alignment_score), ")
+        print("$(match.kmer_count_score):$(match.alignment_score), ")
     end
 end
 
