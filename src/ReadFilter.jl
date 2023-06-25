@@ -14,6 +14,7 @@ module ReadFilter
     include("utils.jl")
     include("io.jl")
     include("kmer_count/kmer_count.jl")
+    include("align.jl")
     include("references.jl")
     include("reads.jl")
     include("mutation.jl")
