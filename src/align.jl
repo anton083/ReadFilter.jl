@@ -5,17 +5,17 @@ const MatrixType = Matrix{AlignScoreType}
 const NegInf = AlignScoreType(-Inf)
 
 struct Parameters
-    D::SWG_MatrixType
-    P::SWG_MatrixType
-    Q::SWG_MatrixType
+    D::MatrixType
+    P::MatrixType
+    Q::MatrixType
     gap_open::Int
     gap_extend::Int
 end
 
 function reset_matrices!(params::Parameters)
-    fill!(params.D, SWG_NegInf)
-    fill!(params.P, SWG_NegInf)
-    fill!(params.Q, SWG_NegInf)
+    fill!(params.D, NegInf)
+    fill!(params.P, NegInf)
+    fill!(params.Q, NegInf)
 
     params.D[1, 1] = 0
     for i in 2:(m+1)
@@ -42,7 +42,7 @@ end
 function SWG_score(seq1::LongDNA, seq2::LongDNA, gap_open::Int, gap_extend::Int)
     m, n = length(seq1), length(seq2)
     params = Parameters(length(m), length(n), gap_open, gap_extend)
-    score(params, seq1, seq2, gap_open, gap_extend)
+    SWG_score(params, seq1, seq2, gap_open, gap_extend)
 end
 
 function SWG_score(params::Parameters, seq1::LongDNA, seq2::LongDNA, gap_open::Int, gap_extend::Int)
