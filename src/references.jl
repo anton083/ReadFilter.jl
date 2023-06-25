@@ -18,6 +18,7 @@ function references(path::String, num_refs::Union{Int, Float64} = Inf)
 end
 
 
+# doesn't have seq and len field cause it's lazy
 struct Subreference
     reference::Reference
     subrange::Subrange

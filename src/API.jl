@@ -72,12 +72,12 @@ function find_reads_gpu(
             filter!(rm -> rm.alignment_score > read_length / 2, read_matches)
         end
 
-        append!(flagged_reads, global_read_indices)
+        write_matches(writer, read_matches)
+
+        append!(flagged_reads, [rm.read.idx for rm in read_matches])
     end
     close(reader)
     close(writer)
-
-    #filter!(idx -> (idx <= read_count), flagged_reads)
 
     flagged_reads
 end
