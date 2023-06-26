@@ -60,7 +60,7 @@ end
 # TODO: keep track of subref index. match.subref_idx field would be easiest to implement
 @inline function write_match(writer::FASTAWriter, match::Match)
     read_idx = match.read.idx
-    ref_index = match.subref
+    ref_index = match.subref.reference.idx
     score1 = round(match.kmer_count_score, digits=1)
     score2 = round(match.alignment_score, digits=1)
     desc = "$read_idx r$(ref_index) $(score1):$(score2)"
