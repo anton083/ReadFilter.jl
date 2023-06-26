@@ -53,6 +53,7 @@ function find_reads_gpu(
         if !isempty(read_indices_d)
             read_indices_d = filter(idx -> idx <= num_new_reads, read_indices_d)
         end
+        # FIXME: num_new_reads threshold doesn't seem to work
 
         isempty(read_indices_d) && continue
 
