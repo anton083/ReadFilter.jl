@@ -39,7 +39,7 @@ function get_matches(
         for (j, subref) in enumerate(subrefs)
             matches[i] = Match(read, subref, score, missing)
             alignment_score, a1, a2 = SWG_align(read.seq, get_sequence(subref), 1, 1)
-            println(j)
+            println("computed alignment for subref $j")
             if alignment_score > 40
                 println(score)
                 println(alignment_score)
