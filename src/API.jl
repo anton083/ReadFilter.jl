@@ -62,6 +62,7 @@ function find_reads_gpu(
 
         #matched_reads_byte_matrix = Matrix{UInt8}(bases_to_bytes((reads_base_matrix_d[read_indices_d, :])))
 
+        read_indices = Vector(read_indices_d)
         global_read_indices = Vector(read_indices_d .+ global_index_offset)
         subref_indices = Vector(getindex.(match_cart_inds_d, 1))
         matched_subrefs = subrefs[subref_indices]
