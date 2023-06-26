@@ -39,13 +39,6 @@ function get_matches(
     for (i, (read, subref, score)) in enumerate(zip(reads, subrefs, kmer_count_scores))
         match = Match(read, subref, score, missing)
         matches[i] = match
-        alignment_score, a1, a2 = SWG_align(read.seq, get_sequence(subref), 1, 1)
-        if alignment_score > 40
-            println(score)
-            println(alignment_score)
-            print_alignment(a1, a2)
-            print_alignment(a2, a1)
-        end
     end
     matches
 end
@@ -55,10 +48,10 @@ function assign_alignment_scores(matches::Vector{Match})
     params = AlignParams(length(match.read), length(match.subref), 1, 1)
     for match in matches
         match.alignment_score, a1, a2 = SWG_align(match.read.seq, get_sequence(match.subref), params)
-        println(match.kmer_count_score)
-        println(match.alignment_score)
-        print_alignment(a1, a2)
-        print_alignment(a2, a1)
+        #println(match.kmer_count_score)
+        #println(match.alignment_score)
+        #print_alignment(a1, a2)
+        #print_alignment(a2, a1)
     end
 end
 
