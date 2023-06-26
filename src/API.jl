@@ -66,11 +66,17 @@ function find_reads_gpu(
         matched_subrefs = subrefs[subref_indices]
         match_scores = Vector(max_scores_d[read_indices_d])
 
+        println(match_cart_inds_d)
+        println(read_indices_d)
+        println(subref_indices)
+
         reads = recreate_reads(matched_reads_byte_matrix, global_read_indices)
         read_matches = get_matches(reads, matched_subrefs, match_scores)
+        println(read_matches)
 
         if check_alignments
             assign_alignment_scores(read_matches)
+            println(read_matches)
             filter!(rm -> rm.alignment_score > read_length / 2, read_matches)
         end
 
