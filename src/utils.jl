@@ -28,3 +28,14 @@ function random_subrange(L::Int, R::Int)
     start = rand(1:L-R+1)
     start:start+R-1
 end
+
+function print_alignment(s1, s2)
+    for i in 1:length(s1)
+        if s1[i] == s2[i]
+            printstyled(s1[i]; color=:green)  # Matches - Green
+        else
+            printstyled(s1[i]; color=:white)  # Non-matches - Red
+        end
+    end
+    println()  # Print a newline at the end
+end

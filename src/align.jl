@@ -39,20 +39,20 @@ function AlignParams(m::Int, n::Int, gap_open::Int, gap_extend::Int)
     reset_matrices!(params)
 end
 
-function SWG_score(seq1::LongDNA{4}, seq2::LongDNA{4}, gap_open::Int, gap_extend::Int)
+function SWG_align(seq1::LongDNA{4}, seq2::LongDNA{4}, gap_open::Int, gap_extend::Int)
     m, n = length(seq1), length(seq2)
     params = AlignParams(m, n, gap_open, gap_extend)
-    SWG_score(seq1, seq2, params)
+    SWG_align(seq1, seq2, params)
 end
 
-function SWG_score(seq1::LongDNA{4}, seq2::LongDNA{4}, params::AlignParams)
+function SWG_align(seq1::LongDNA{4}, seq2::LongDNA{4}, params::AlignParams)
     m, n = length(seq1), length(seq2)
     @assert size(params.D) == (m+1, n+1)
     reset_matrices!(params)
 
     D, P, Q = params.D, params.P, params.Q
     gap_open, gap_extend = params.gap_open, params.gap_extend
-    
+
     for i in 2:(m+1)
         for j in 2:(n+1)
             P[i, j] = max(D[i-1, j] - gap_open, P[i-1, j] - gap_extend)
@@ -61,6 +61,32 @@ function SWG_score(seq1::LongDNA{4}, seq2::LongDNA{4}, params::AlignParams)
             D[i, j] = max(0, D[i-1, j-1] + match_score, P[i, j], Q[i, j])
         end
     end
-    
-    maximum(D)
+
+    # Traceback from the maximum score in D
+    alignment1 = []
+    alignment2 = []
+    i, j = argmax(D)
+
+    while D[i, j] != 0
+        if D[i, j] == D[i-1, j-1] + (seq1[i-1] == seq2[j-1] ? 1 : -1)
+            push!(alignment1, seq1[i-1])
+            push!(alignment2, seq2[j-1])
+            i -= 1
+            j -= 1
+        elseif D[i, j] == P[i, j]
+            push!(alignment1, seq1[i-1])
+            push!(alignment2, '-')
+            i -= 1
+        else
+            push!(alignment1, '-')
+            push!(alignment2, seq2[j-1])
+            j -= 1
+        end
+    end
+
+    # Reverse the alignments as they are currently backwards
+    alignment1 = reverse(alignment1)
+    alignment2 = reverse(alignment2)
+
+    return maximum(D), alignment1, alignment2
 end
