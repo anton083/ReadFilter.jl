@@ -47,7 +47,6 @@ function get_matches(
                 print_alignment(a2, a1)
             end
         end
-        break
     end
     matches
 end
