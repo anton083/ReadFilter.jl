@@ -68,7 +68,7 @@ function find_reads_gpu(
         match_scores = Vector(max_scores_d[read_indices_d])
 
         reads = recreate_reads(matched_reads_byte_matrix, global_read_indices)
-        read_matches = get_matches(reads, matched_subrefs, match_scores)
+        read_matches = get_matches(reads, matched_subrefs, subrefs, match_scores)
 
         if check_alignments
             assign_alignment_scores(read_matches)

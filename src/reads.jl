@@ -31,12 +31,13 @@ end
 function get_matches(
     reads::Vector{Read},
     subrefs::Vector{Subreference},
+    all_subrefs::Vector{Subreference},
     kmer_count_scores::Vector{BinType},
 )
     n = length(reads)
     matches = Vector{Match}(undef, n)
     for (i, (read, subref, score)) in enumerate(zip(reads, subrefs, kmer_count_scores))
-        for (j, subref) in enumerate(subrefs)
+        for (j, subref) in enumerate(all_subrefs)
             matches[i] = Match(read, subref, score, missing)
             alignment_score, a1, a2 = SWG_align(read.seq, get_sequence(subref), 1, 1)
             println("computed alignment for subref $j")
