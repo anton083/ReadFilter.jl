@@ -1,12 +1,13 @@
 
 function find_reads_gpu(
     ref_path::String,
-    dataset_path::String,
-    pident::Float64 = 0.9;
-    k::Int = 6,
+    dataset_path::String;
+    pident::Float64 = 0.9,
+    k::Int = 7,
     subref_length::Int = 1024,
-    read_chunk_size::Int = 100000,
+    read_batch_size::Int = 100000,
     output_path::String = "filtered.fasta",
+    write_matched_reads::Bool = true,
     check_alignments::Bool = false,
 )
     read_length = longest_read_fasta(dataset_path)
@@ -20,10 +21,10 @@ function find_reads_gpu(
 
     score_threshold = BinType(mean(Float32, score_thresholds_d))    
 
-    reads_kmer_matrix_d = kmer_count.GPU.column_bins(read_chunk_size, k)
-    reads_byte_matrix_h = byte_matrix(read_chunk_size, read_length)
+    reads_kmer_matrix_d = kmer_count.GPU.column_bins(read_batch_size, k)
+    reads_byte_matrix_h = byte_matrix(read_batch_size, read_length)
 
-    # Pre-allocate scores_d? CUDA.zeros(BinType, (ref_count, read_chunk_size))
+    # Pre-allocate scores_d? CUDA.zeros(BinType, (ref_count, read_batch_size))
     flagged_reads = Int64[]
 
     writer = FASTAWriter(open(output_path, "w"))
@@ -38,9 +39,9 @@ function find_reads_gpu(
             byte_seq = codeunits(sequence(String, record))
             len = seqsize(record)
             byte_seq_to_byte_matrix!(reads_byte_matrix_h, byte_seq, len, i)
-            i == read_chunk_size && break
+            i == read_batch_size && break
         end
-        num_new_reads = (read_count - 1) % read_chunk_size + 1
+        num_new_reads = (read_count - 1) % read_batch_size + 1
         global_index_offset = read_count - num_new_reads
 
         reads_base_matrix_d = bytes_to_bases(CuMatrix{UInt8}(reads_byte_matrix_h))
@@ -74,7 +75,7 @@ function find_reads_gpu(
             filter!(rm -> rm.alignment_score > read_length / 2, read_matches)
         end
 
-        write_matches(writer, read_matches)
+        write_matched_reads && write_matches(writer, read_matches)
 
         append!(flagged_reads, [rm.read.idx for rm in read_matches])
     end
