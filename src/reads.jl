@@ -37,6 +37,10 @@ function get_matches(
     matches = Vector{Match}(undef, n)
     for (i, (read, subref, score)) in enumerate(zip(reads, subrefs, kmer_count_scores))
         matches[i] = Match(read, subref, score, missing)
+        match.alignment_score, a1, a2 = SWG_align(read.seq, get_sequence(subref), 1, 1)
+        println(match.alignment_score)
+        print_alignment(a1, a2)
+        print_alignment(a2, a1)
     end
     matches
 end
