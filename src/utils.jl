@@ -1,5 +1,6 @@
 
 degap(seq::LongDNA{4}) = filter(c -> c != DNA_Gap, seq)
+degap(seq::String) = filter(c -> c != '-', seq)
 
 max_in_columns(matrix::Array{Int, 2}) = mapslices(maximum, matrix, dims=1)
 

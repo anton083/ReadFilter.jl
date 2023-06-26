@@ -65,8 +65,7 @@ function SWG_align(seq1::LongDNA{4}, seq2::LongDNA{4}, params::AlignParams)
     # Traceback from the maximum score in D
     alignment1 = []
     alignment2 = []
-    I = argmax(D)
-    i, j = I[1], I[2]
+    i, j = Tuple(argmax(D))
 
     while D[i, j] != 0
         if D[i, j] == D[i-1, j-1] + (seq1[i-1] == seq2[j-1] ? 1 : -1)
