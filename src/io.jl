@@ -32,7 +32,7 @@ function filter_fasta(
     close(writer)
 end
 
-byte_matrix(num_seqs::Int, seq_length::Int) = zeros(UInt8, (num_seqs, seq_length))
+byte_matrix(num_seqs::Int, seq_length::Int)::Matrix{UInt8} = fill(0x41, (num_seqs, seq_length))
 
 """
 Does the bare minimum that needs to be done to the sequences before moving them to GPU.

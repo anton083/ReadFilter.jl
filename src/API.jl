@@ -60,14 +60,14 @@ function find_reads_gpu(
         # Cartesian coordinates for score matrix
         match_cart_inds_d = max_scores_indices_d[read_indices_d]
 
-        matched_reads_byte_matrix = Matrix{UInt8}(bases_to_bytes((reads_base_matrix_d[read_indices_d, :])))
+        #matched_reads_byte_matrix = Matrix{UInt8}(bases_to_bytes((reads_base_matrix_d[read_indices_d, :])))
 
         global_read_indices = Vector(read_indices_d .+ global_index_offset)
         subref_indices = Vector(getindex.(match_cart_inds_d, 1))
         matched_subrefs = subrefs[subref_indices]
         match_scores = Vector(max_scores_d[read_indices_d])
 
-        reads = recreate_reads(matched_reads_byte_matrix, global_read_indices)
+        reads = recreate_reads(reads_byte_matrix_h, read_indices, global_read_indices)
         read_matches = get_matches(reads, matched_subrefs, subrefs, match_scores)
 
         if check_alignments

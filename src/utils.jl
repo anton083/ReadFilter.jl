@@ -2,8 +2,6 @@
 degap(seq::LongDNA{4}) = filter(c -> c != DNA_Gap, seq)
 degap(seq::String) = filter(c -> c != '-', seq)
 
-max_in_columns(matrix::Array{Int, 2}) = mapslices(maximum, matrix, dims=1)
-
 """
 Takes a sequence lengths and splits it into `subranges` of length `sublength` that overlap by `overlap`.
 The overlap may be larger between the last and next to last subrange in case the last one doesn't perfectly fit.
